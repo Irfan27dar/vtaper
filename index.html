@@ -253,6 +253,35 @@ input,select{font:inherit;color:var(--ink);background:var(--glass-hi);border:1px
 .tipbox{background:rgba(255,255,255,.8);border:1px solid var(--stroke);border-radius:16px;padding:12px 14px;font-size:13px}
 a.cta{text-decoration:none}
 
+/* protein food guide */
+.qguide{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer}
+.qguide .ic{width:44px;height:44px;border-radius:14px;background:var(--coral-s);color:var(--coral);display:grid;place-items:center;flex:none}
+.qguide .ic svg{width:22px;height:22px}
+.fsearch{width:100%}
+.flist{display:flex;flex-direction:column;gap:8px}
+.frow{display:grid;grid-template-columns:42px 1fr auto 38px;gap:10px;align-items:center;background:rgba(255,255,255,.85);border:1px solid var(--stroke);border-radius:16px;padding:8px 10px}
+.frow .fe{width:42px;height:42px;border-radius:50%;background:var(--coral-s);display:grid;place-items:center;font-size:20px}
+.frow .fn{font-weight:600;font-size:13.5px}
+.frow .fs{font-size:11.5px;color:var(--muted)}
+.frow .fp{text-align:right}
+.frow .fp b{display:block;font-size:16px;font-weight:600;color:var(--coral)}
+.frow .fp span{font-size:11px;color:var(--muted)}
+.lean{display:inline-block;font-size:10px;font-weight:600;background:var(--teal-s);color:var(--teal-d);border-radius:99px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+
+/* supplement guide */
+.stier{display:flex;flex-direction:column;gap:8px}
+.stier h3{font-size:15px}
+.scard{background:rgba(255,255,255,.85);border:1px solid var(--stroke);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.scard .sh{display:flex;align-items:center;gap:10px}
+.scard .se{width:38px;height:38px;border-radius:50%;background:var(--teal-s);display:grid;place-items:center;font-size:18px;flex:none}
+.scard.skip .se{background:var(--coral-s)}
+.scard .sn{font-weight:600;font-size:14px}
+.scard p{margin:0;font-size:13px}
+.sgrid{display:grid;grid-template-columns:84px 1fr;gap:4px 10px;font-size:12.5px}
+.sgrid dt{color:var(--muted);font-weight:500}
+.sgrid dd{margin:0}
+.mine{display:inline-block;font-size:10px;font-weight:600;background:var(--ink);color:var(--white);border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+
 /* pull to refresh */
 .ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--stroke);box-shadow:var(--shadow);font-size:12px;font-weight:500;color:var(--muted);transform:translate(-50%,-80px);opacity:0;pointer-events:none}
 .ptr .spin{width:26px;height:26px;border-radius:50%;background:var(--teal-s);color:var(--teal-d);display:grid;place-items:center}
@@ -592,6 +621,61 @@ const MEALS = [
   {id:"sh",t:"21:40",n:"Post-gym shake",d:"Whey + 5 g creatine",g:24,e:"🥤"},
   {id:"dn",t:"22:30",n:"Dinner",d:"Chicken or meat + rice",g:35,e:"🍗"}
 ];
+/* Protein food guide: [emoji, name, serving, protein g, kcal, category] (approx values) */
+const PFOODS = [
+  ["🍗","Chicken breast","100 g cooked",31,165,"meat"],
+  ["🍗","Chicken thigh, skinless","100 g cooked",25,210,"meat"],
+  ["🍢","Chicken tikka","6 pieces, about 150 g",38,280,"ready"],
+  ["🌯","Chicken shawarma wrap","1 wrap",25,450,"ready"],
+  ["🥩","Lean beef mince","100 g cooked",26,215,"meat"],
+  ["🍖","Lamb or mutton","100 g cooked",25,280,"meat"],
+  ["🐟","Tuna in water","1 can, drained",26,120,"meat"],
+  ["🐟","Hammour or white fish","100 g cooked",23,110,"meat"],
+  ["🍣","Salmon","100 g cooked",22,206,"meat"],
+  ["🦐","Shrimp","100 g cooked",24,99,"meat"],
+  ["🐟","Sardines, canned","1 can, drained",21,185,"meat"],
+  ["🥚","Whole egg","1 large",6,72,"dairy"],
+  ["🥚","Egg whites","3 large",11,51,"dairy"],
+  ["🥣","Greek yogurt, plain","170 g cup",17,100,"dairy"],
+  ["🧀","Cottage cheese","100 g",11,98,"dairy"],
+  ["🧀","Paneer","100 g",18,290,"dairy"],
+  ["🧀","Halloumi","50 g",11,160,"dairy"],
+  ["🥛","Milk","250 ml glass",8,130,"dairy"],
+  ["🥛","Laban","250 ml",8,120,"dairy"],
+  ["🫘","Soya chunks","50 g dry",26,172,"plant"],
+  ["🍲","Lentils (dal)","1 cup cooked",18,230,"plant"],
+  ["🫘","Chickpeas","1 cup cooked",15,270,"plant"],
+  ["🫘","Kidney beans (rajma)","1 cup cooked",15,225,"plant"],
+  ["🫛","Edamame","1 cup shelled",18,190,"plant"],
+  ["⬜","Tofu, firm","100 g",14,140,"plant"],
+  ["🥜","Peanut butter","2 tbsp",7,190,"plant"],
+  ["🌰","Almonds","30 g handful",6,170,"plant"],
+  ["🥣","Oats","50 g dry",7,190,"plant"],
+  ["🥤","Whey protein","1 scoop",24,120,"ready"],
+  ["🍫","Protein bar","1 bar, about 60 g",20,210,"ready"],
+  ["🧃","Ready to drink protein shake","1 bottle, about 330 ml",25,170,"ready"]
+];
+/* Supplement guide: tier -> items {e,n,why,dose,when,buy,mine} */
+const SUPPS = [
+  {tier:"Worth taking",note:"Strong research behind these for muscle and recovery.",items:[
+    {e:"🥤",n:"Whey protein",mine:true,why:"Easy way to hit 140 g protein a day. Helps muscle repair after training.",dose:"1 scoop, about 25 g protein",when:"After the gym, or any time you are short on protein",buy:"Whey isolate or concentrate with about 25 g protein per scoop and little sugar. Look for a third party tested seal like Informed Sport or NSF Certified for Sport."},
+    {e:"⚡",n:"Creatine monohydrate",mine:true,why:"The best tested supplement for strength and muscle size. More reps, faster progress.",dose:"5 g every day",when:"Any time. Rest days too. Mix it in your shake.",buy:"Plain creatine monohydrate powder. Skip fancy versions like HCL or 'buffered', they cost more and work no better."},
+    {e:"☀️",n:"Vitamin D3",why:"Many people in the Gulf and India are low because they avoid the sun. Low levels can hurt energy, mood and bones.",dose:"1,000 to 2,000 IU a day is a common safe dose",when:"With a meal that has some fat",buy:"D3 softgels or drops. Best move: get a blood test first so you know your level."},
+    {e:"🐟",n:"Omega-3 fish oil",why:"Good for heart, joints and recovery. Most useful if you eat oily fish less than twice a week.",dose:"About 1 to 2 g of EPA plus DHA a day",when:"With a meal",buy:"Check the back label for EPA and DHA amounts, not just 'fish oil 1000 mg'."}
+  ]},
+  {tier:"Helpful for you",note:"Useful for your schedule and the heat.",items:[
+    {e:"💧",n:"Electrolytes",why:"Dubai heat plus football means you lose a lot of salt in sweat. Stops cramps and that flat feeling.",dose:"1 serving in water",when:"Match day, or long sweaty gym sessions",buy:"Low sugar tablets or powder with sodium, potassium and magnesium."},
+    {e:"😴",n:"Magnesium glycinate",why:"Can help sleep and muscle relaxation, handy since you train late at 8 pm.",dose:"200 to 400 mg",when:"About an hour before bed",buy:"Glycinate or citrate form. Oxide is cheap but poorly absorbed."},
+    {e:"💊",n:"Multivitamin",why:"Simple backup for days your food is not perfect. Not magic, just insurance.",dose:"1 a day",when:"With breakfast",buy:"A basic men's multivitamin. No need for mega doses."}
+  ]},
+  {tier:"Skip these",note:"Save your money. You do not need them.",items:[
+    {e:"🚫",n:"BCAAs",why:"You already get them from protein food and whey. Extra BCAAs add nothing."},
+    {e:"🚫",n:"Fat burners",why:"Mostly caffeine with a big price tag. Your lean look comes from training and food."},
+    {e:"🚫",n:"Testosterone boosters",why:"No good proof they work for healthy men. Some contain risky ingredients."},
+    {e:"☕",n:"Late pre-workout",why:"You train at 8 pm. Caffeine that late can wreck your sleep, and sleep is when you grow. If you want one, pick a caffeine free formula."}
+  ]}
+];
+const PCATS = [["all","All"],["meat","Meat & fish"],["dairy","Eggs & dairy"],["plant","Plant"],["ready","Ready to eat"]];
 const SCHEDULE = [
   ["07:00","Wake up. Drink 500 ml water before tea."],
   ["08:30","Breakfast: 4 eggs. About 25 g protein."],
@@ -869,6 +953,8 @@ function renderFuel(){
     +'<div class="glass stack"><div class="row between"><div class="ctitle">Today\'s Meals</div><span class="small muted">Tap ✓ when eaten</span></div><div class="meals">'
       +MEALS.map(m=>{const on=mealDone(m.id);return '<div class="meal"><span class="food" aria-hidden="true">'+m.e+'</span><span style="min-width:0"><div class="t num">'+m.t+' · '+m.n+'</div><div class="n">'+esc(m.d)+'</div><div class="g num">'+m.g+' g protein</div></span><button class="mk" aria-pressed="'+on+'" aria-label="'+(on?"Undo ":"Mark eaten: ")+esc(m.n)+'" data-act="meal" data-id="'+m.id+'">'+(on?IC.check:IC.plus)+'</button></div>';}).join("")
     +'</div></div>'
+    +'<button class="glass qguide" data-act="foods"><span class="ic">'+IC.food+'</span><span style="min-width:0;flex:1"><span class="ctitle" style="display:block">Protein Food Guide</span><span class="small muted">'+PFOODS.length+' foods you can find at any supermarket. Tap to add.</span></span><span class="chev">'+IC.chev+'</span></button>'
+    +'<button class="glass qguide" data-act="supps"><span class="ic" style="background:var(--teal-s);color:var(--teal)">'+IC.check+'</span><span style="min-width:0;flex:1"><span class="ctitle" style="display:block">Supplement Guide</span><span class="small muted">What to buy, how much to take, and what to skip</span></span><span class="chev">'+IC.chev+'</span></button>'
     +'<div class="glass stack"><div class="ctitle">Add Extra Protein</div><div class="chips">'+FOODS.map(f=>'<button class="pill" data-act="addP" data-g="'+f[1]+'" data-n="'+esc(f[0])+'">'+esc(f[0])+'<b>'+f[1]+'g</b></button>').join("")+'</div>'
       +'<div class="form2"><input id="cpN" placeholder="Other food" aria-label="Food name"><input id="cpG" inputmode="numeric" placeholder="g" aria-label="Protein grams"></div>'
       +'<button class="cta coral center" data-act="addCustom">Log Food</button>'
@@ -1112,6 +1198,13 @@ document.addEventListener("click",ev=>{
   else if(a==="unswap"){delete day(k).prog;trainView=null;openEx.clear();save("days");renderAll();}
   else if(a==="set"){logSet(b.dataset.id,+b.dataset.i);}
   else if(a==="how"){openHow(b.dataset.id,b);}
+  else if(a==="foods"){openFoods(b);}
+  else if(a==="supps"){openSupps(b);}
+  else if(a==="fcat"){fCat=b.dataset.c;document.querySelectorAll('[data-act="fcat"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.c===fCat));renderFoods();}
+  else if(a==="fsort"){fSort=b.dataset.s;document.querySelectorAll('[data-act="fsort"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===fSort));renderFoods();}
+  else if(a==="addFood"){const f=PFOODS[+b.dataset.i];day(k).p.push([f[3],f[1]+" ("+f[2]+")"]);save("days");
+    b.setAttribute("aria-pressed","true");b.innerHTML=IC.check;setTimeout(()=>{b.setAttribute("aria-pressed","false");b.innerHTML=IC.plus;},1200);
+    if(tab==="fuel")renderFuel(); else if(tab==="today")renderToday();}
   else if(a==="copyCode"){copyCode(b);}
   else if(a==="ackCode"){lsUi("syncAck","1");renderToday();}
   else if(a==="backupNow"){clearTimeout(cloudT);cloudPush();}
@@ -1169,23 +1262,59 @@ function logSet(id,i){
   }
 }
 
-/* ===== How-to sheet ===== */
+/* ===== Bottom sheet ===== */
 let howReturn=null;
+function openSheet(html,from){
+  howReturn=from||null; $("#howBody").innerHTML=html;
+  const bk=$("#howBack"); bk.hidden=false; document.body.style.overflow="hidden";
+  requestAnimationFrame(()=>{bk.classList.add("show"); const c=bk.querySelector(".close"); if(c) c.focus();});
+}
+
+/* ===== Protein food guide ===== */
+let fCat="all", fSort="protein", fQ="";
+function openFoods(from){
+  openSheet('<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
+    +'<div><div class="small muted">Nutrition</div><h2 id="howTitle">Protein Food Guide</h2></div>'
+    +'<input id="fSearch" class="fsearch" type="search" placeholder="Search foods" aria-label="Search foods" autocomplete="off" value="'+esc(fQ)+'">'
+    +'<div class="scroller" role="group" aria-label="Food type">'+PCATS.map(c=>'<button class="pill" data-act="fcat" data-c="'+c[0]+'" aria-pressed="'+(fCat===c[0])+'">'+c[1]+'</button>').join("")+'</div>'
+    +'<div class="seg" role="group" aria-label="Sort"><button data-act="fsort" data-s="protein" aria-pressed="'+(fSort==="protein")+'">Most protein</button><button data-act="fsort" data-s="lean" aria-pressed="'+(fSort==="lean")+'">Leanest</button></div>'
+    +'<div class="flist" id="fList"></div>'
+    +'<p class="small muted" style="margin:0">Values are close estimates. Check the label on packs. <b class="lean" style="margin:0">Lean</b> means 10 g or more protein per 100 calories, great for staying lean.</p>',from);
+  renderFoods();
+}
+function renderFoods(){
+  const el=$("#fList"); if(!el) return; const q=fQ.trim().toLowerCase();
+  let list=PFOODS.map((f,i)=>({f,i})).filter(({f})=>q?f[1].toLowerCase().includes(q):(fCat==="all"||f[5]===fCat));
+  list.sort((a,b)=>fSort==="lean"?(b.f[3]/b.f[4])-(a.f[3]/a.f[4]):b.f[3]-a.f[3]);
+  el.innerHTML=list.length?list.map(({f,i})=>{const lean=f[3]/f[4]*100>=10;
+    return '<div class="frow"><span class="fe" aria-hidden="true">'+f[0]+'</span><span style="min-width:0"><div class="fn">'+esc(f[1])+(lean?'<span class="lean">Lean</span>':'')+'</div><div class="fs">'+esc(f[2])+'</div></span>'
+      +'<span class="fp num"><b>'+f[3]+' g</b><span>'+f[4]+' kcal</span></span>'
+      +'<button class="mk" data-act="addFood" data-i="'+i+'" aria-label="Add '+esc(f[1])+' to today">'+IC.plus+'</button></div>';}).join("")
+    :'<div class="empty">No foods match that search.</div>';
+}
+document.addEventListener("input",e=>{if(e.target.id==="fSearch"){fQ=e.target.value;renderFoods();}});
+
+function openSupps(from){
+  openSheet('<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
+    +'<div><div class="small muted">Nutrition</div><h2 id="howTitle">Supplement Guide</h2></div>'
+    +'<p class="small muted" style="margin:0">Food comes first. These help you fill the gaps. You can find them at GNC, Sprint, pharmacies or Amazon.</p>'
+    +SUPPS.map(t=>'<section class="stier"><div><h3>'+esc(t.tier)+'</h3><div class="small muted">'+esc(t.note)+'</div></div>'
+      +t.items.map(s=>'<div class="scard'+(t.tier==="Skip these"?' skip':'')+'"><div class="sh"><span class="se" aria-hidden="true">'+s.e+'</span><span class="sn">'+esc(s.n)+(s.mine?'<span class="mine">You take this</span>':'')+'</span></div><p>'+esc(s.why)+'</p>'
+        +(s.dose?'<dl class="sgrid"><dt>How much</dt><dd>'+esc(s.dose)+'</dd><dt>When</dt><dd>'+esc(s.when)+'</dd><dt>What to buy</dt><dd>'+esc(s.buy)+'</dd></dl>':'')+'</div>').join("")+'</section>').join("")
+    +'<div class="banner">Not medical advice. If you have a health condition or take medicine, check with a doctor before starting anything new.</div>',from);
+}
 function openHow(id,from){
   const L=LIB[id], H=HOWTO[id]; if(!L||!H) return;
-  howReturn=from||null;
   const steps=H[1].split("|"), avoid=H[2].split("|");
   const q=encodeURIComponent(L[0]+" proper form");
-  $("#howBody").innerHTML='<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
+  openSheet('<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
     +'<div><div class="small muted">How to do it</div><h2 id="howTitle">'+esc(L[0])+'</h2></div>'
     +'<div class="mus">'+H[0].split(", ").map(m=>'<span>'+esc(m)+'</span>').join("")+'</div>'
     +'<div><div class="ctitle" style="margin-bottom:10px">Steps</div><ol class="steps">'+steps.map(s=>'<li><span>'+esc(s)+'</span></li>').join("")+'</ol></div>'
     +'<div class="avoid"><b>Avoid these mistakes</b><ul>'+avoid.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ul></div>'
     +'<div class="tipbox"><b>Coach tip:</b> '+esc(L[2])+'</div>'
     +'<a class="cta" href="https://www.youtube.com/results?search_query='+q+'" target="_blank" rel="noopener">Watch a video<span class="arr">'+IC.play+'</span></a>'
-    +'<p class="small muted" style="margin:0;text-align:center">Opens YouTube with form videos for this exercise.</p>';
-  const bk=$("#howBack"); bk.hidden=false; document.body.style.overflow="hidden";
-  requestAnimationFrame(()=>{bk.classList.add("show"); bk.querySelector(".close").focus();});
+    +'<p class="small muted" style="margin:0;text-align:center">Opens YouTube with form videos for this exercise.</p>',from);
 }
 function closeHow(){
   const bk=$("#howBack"); if(bk.hidden) return; bk.classList.remove("show"); document.body.style.overflow="";
