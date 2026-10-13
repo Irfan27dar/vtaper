@@ -228,6 +228,31 @@ input,select{font:inherit;color:var(--ink);background:var(--glass-hi);border:1px
 .tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;font-size:11px;font-weight:500;color:var(--muted);border-radius:20px}
 .tab svg{width:22px;height:22px}
 .tab[aria-selected="true"]{color:var(--teal-d);background:var(--teal-s)}
+/* how-to sheet */
+.howbtn{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--stroke);background:rgba(255,255,255,.75);border-radius:14px;padding:8px 12px 8px 8px;font-weight:600;font-size:13px;text-align:left}
+.howbtn .pi{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;flex:none}
+.howbtn .pi svg{width:13px;height:13px;margin-left:2px}
+.howbtn small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.sheet-back{position:fixed;inset:0;z-index:40;background:rgba(27,42,40,.35);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.sheet-back.show{opacity:1}
+.sheet{width:100%;max-width:520px;max-height:88vh;overflow-y:auto;background:rgba(250,252,251,.94);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-radius:28px 28px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,0,0,.15);transform:translateY(30px);transition:transform .25s ease}
+.sheet-back.show .sheet{transform:none}
+.grab{width:40px;height:5px;border-radius:99px;background:rgba(27,42,40,.18);margin:0 auto 14px}
+.sheet h2{font-size:21px;padding-right:44px}
+.sheet .close{position:absolute;right:0;top:0}
+.mus span::first-letter{text-transform:uppercase}
+.sheet-in{position:relative;display:flex;flex-direction:column;gap:14px}
+.mus{display:flex;flex-wrap:wrap;gap:6px}
+.mus span{font-size:12px;font-weight:500;background:var(--teal-s);color:var(--teal-d);border-radius:99px;padding:4px 10px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:14px;counter-increment:st}
+.steps li::before{content:counter(st);width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--white);display:grid;place-items:center;font-weight:600;font-size:13px}
+.avoid{background:var(--coral-s);border-radius:16px;padding:12px 14px}
+.avoid ul{margin:6px 0 0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.avoid b{font-size:13px;color:#a8432a}
+.tipbox{background:rgba(255,255,255,.8);border:1px solid var(--stroke);border-radius:16px;padding:12px 14px;font-size:13px}
+a.cta{text-decoration:none}
+
 /* pull to refresh */
 .ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--stroke);box-shadow:var(--shadow);font-size:12px;font-weight:500;color:var(--muted);transform:translate(-50%,-80px);opacity:0;pointer-events:none}
 .ptr .spin{width:26px;height:26px;border-radius:50%;background:var(--teal-s);color:var(--teal-d);display:grid;place-items:center}
@@ -258,6 +283,13 @@ input,select{font:inherit;color:var(--ink);background:var(--glass-hi);border:1px
   <section id="v-train" class="section" hidden></section>
   <section id="v-fuel" class="section" hidden></section>
   <section id="v-progress" class="section" hidden></section>
+</div>
+
+<div class="sheet-back" id="howBack" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="sheet-in" id="howBody"></div>
+  </div>
 </div>
 
 <div class="rest" id="rest" hidden>
@@ -378,6 +410,100 @@ const LIB = {
   ab_wheel:["Ab Wheel Rollout",0,"Roll out slow, keep your back flat. Log 0 for weight."]
 };
 
+/* ===== How to do each exercise: id -> [muscles, steps (|), mistakes to avoid (|)] ===== */
+const HOWTO = {
+  incline_bb:["Upper chest, front delts, triceps","Set the bench to about 30°. Lie back with eyes under the bar.|Grip a bit wider than shoulders. Squeeze shoulder blades back and down.|Unrack and lower the bar slowly to your upper chest.|Press up and slightly back until arms are straight.","Bench set too steep, which turns it into a shoulder press|Bouncing the bar off your chest"],
+  incline_smith:["Upper chest, front delts, triceps","Set the bench at 30° so the bar lines up with your upper chest.|Grip a bit wider than shoulders and unhook the bar.|Lower slowly to your upper chest with elbows at about 45°.|Press up until your arms are straight, then re-hook when done.","Bench in the wrong spot so the bar hits your neck or belly|Flaring elbows straight out to the side"],
+  incline_db:["Upper chest, front delts, triceps","Set the bench at 30°. Sit with dumbbells on your thighs.|Kick them up one at a time as you lie back.|Lower the dumbbells wide and deep beside your upper chest.|Press up and slightly in until they almost touch.","Going too heavy and cutting the range short|Letting the dumbbells drift over your face"],
+  incline_machine:["Upper chest, front delts, triceps","Adjust the seat so the handles line up with your upper chest.|Sit tall with your back flat on the pad.|Press the handles forward until arms are straight.|Bring them back slowly until you feel a chest stretch.","Seat too low so it works shoulders more than chest|Letting the weight stack slam"],
+  flat_db:["Chest, front delts, triceps","Sit with dumbbells on your thighs, then lie back and bring them up.|Plant your feet and pull shoulder blades back.|Lower the dumbbells slowly to chest level, elbows at about 45°.|Press up until they almost touch over your chest.","Elbows flared out at 90°, which strains the shoulders|Dropping the weights fast at the bottom"],
+  flat_bb:["Chest, front delts, triceps","Lie with eyes under the bar and feet flat on the floor.|Grip a bit wider than shoulders. Squeeze shoulder blades together.|Lower the bar to your lower chest with control.|Press up to straight arms. Use a spotter or safety pins.","Lifting your hips off the bench|Bouncing the bar off your chest"],
+  machine_chest:["Chest, front delts, triceps","Set the seat so the handles are at mid chest height.|Sit tall, back on the pad, shoulder blades back.|Press forward until arms are almost straight.|Return slowly until you feel a stretch.","Shoulders rolling forward at the end|Rushing the way back"],
+  chest_dips:["Lower chest, front delts, triceps","Grab the dip bars and lift yourself up with straight arms.|Lean your body forward about 30°.|Lower until your shoulders are a little below your elbows.|Push back up to straight arms.","Going too deep with sore shoulders|Swinging your legs for momentum"],
+  seated_db_ohp:["Front and side delts, triceps","Set the bench upright. Sit with dumbbells at shoulder height.|Palms face forward, elbows slightly in front of your body.|Press up until arms are almost straight.|Lower slowly back to shoulder height.","Arching your lower back off the pad|Banging the dumbbells together at the top"],
+  machine_ohp:["Front and side delts, triceps","Adjust the seat so the handles start at chin height.|Sit tall with your back on the pad.|Press up until arms are almost straight.|Lower slowly to chin height.","Seat too low or too high|Locking out hard and resting at the top"],
+  arnold:["Front and side delts, triceps","Sit upright holding dumbbells at chin height, palms facing you.|As you press up, turn your palms to face forward.|Finish with arms almost straight overhead.|Reverse the turn on the way down.","Rushing the turn so it becomes sloppy|Using a weight too heavy to control"],
+  standing_ohp:["Shoulders, triceps, core","Stand with feet hip width. Bar rests on your front shoulders.|Squeeze glutes and abs hard.|Press the bar straight up. Move your head back slightly to let it pass.|Push your head through once the bar is overhead. Lower to your shoulders.","Leaning way back and turning it into an incline press|Loose core"],
+  landmine_press:["Upper chest, front delts, triceps","Put one end of a barbell in a landmine or corner. Kneel on one knee.|Hold the end of the bar at shoulder height with the same side hand as the down knee.|Press up and forward until your arm is straight.|Lower slowly. Do all reps, then switch sides.","Twisting your body to push|Arching your lower back"],
+  cable_lat:["Side delts","Set the cable pulley at the lowest point. Stand side on.|Hold the handle with the far hand, arm slightly bent.|Raise your arm out to the side until it is at shoulder height.|Lower slowly. Do all reps, then switch sides.","Shrugging your shoulder up|Swinging your body"],
+  db_lat:["Side delts","Stand tall with light dumbbells at your sides.|Bend elbows slightly and lean forward just a little.|Raise arms out to the sides to shoulder height, pinkies slightly up.|Lower slowly over 2 to 3 seconds.","Going too heavy and swinging|Raising above shoulder height and shrugging"],
+  machine_lat:["Side delts","Adjust the seat so your shoulders line up with the machine's pivot.|Put the pads against the outside of your elbows.|Lift your elbows out and up to shoulder height.|Pause, then lower slowly.","Shrugging your traps up|Letting the weight drop fast"],
+  leanaway_lat:["Side delts","Stand side on to a low cable. Hold the machine post with your near hand.|Lean your body away from the machine.|With the far hand, raise the handle out to shoulder height.|Lower slowly for a long stretch. Switch sides.","Leaning so far you lose balance|Bending the elbow a lot so it turns into a row"],
+  seated_db_lat:["Side delts","Sit on the end of a bench, dumbbells at your sides.|Bend elbows slightly and keep your chest up.|Raise arms out to shoulder height.|Take 3 seconds to lower.","Swinging the body forward|Shrugging"],
+  cable_y:["Side and upper delts, upper back","Set two cables low and cross the handles: left hand holds right cable, right hand holds left.|Stand in the middle with a slight bend at the hips.|Raise your arms up and out into a Y shape.|Lower slowly back down.","Using too much weight and arching|Raising arms in front instead of out wide"],
+  low_high_fly:["Upper chest","Set two cables at the lowest point. Hold one in each hand.|Step forward with a slight lean, arms down and back.|Sweep your hands up and in to chin height.|Squeeze the upper chest, then lower slowly.","Bending elbows a lot so it becomes a press|Going too heavy and losing the stretch"],
+  incline_db_fly:["Upper chest","Lie on a 30° bench with dumbbells over your chest, palms facing in.|Keep a soft bend in your elbows.|Open your arms wide until you feel a deep stretch.|Bring them back up in a hugging motion.","Straight arms, which strains the elbows|Going too heavy"],
+  pec_deck:["Chest","Adjust the seat so the handles are at chest height.|Sit tall, back on the pad.|Bring the handles together in front of your chest.|Squeeze for one second, then open slowly.","Shoulders rolling forward|Letting the weight pull your arms back too far"],
+  mid_cable_fly:["Chest","Set both cables at shoulder height. Hold one in each hand.|Step forward with one foot and lean slightly.|Bring your hands together in front of your chest, elbows soft.|Return slowly until you feel a stretch.","Turning it into a press|Rushing the reps"],
+  rope_pd:["Triceps","Attach a rope to a high cable. Stand close and lean slightly forward.|Keep elbows pinned to your sides.|Push the rope down and spread the ends apart at the bottom.|Let the rope come up slowly to chest height.","Elbows moving forward and back|Leaning over the rope and using body weight"],
+  bar_pd:["Triceps","Attach a straight bar to a high cable. Grip it shoulder width.|Pin your elbows at your sides.|Push the bar down until arms are fully straight.|Control it back up to chest height.","Shoulders rolling forward|Only doing half reps"],
+  sa_pd_rev:["Triceps (inner part)","Attach a single handle to a high cable.|Grip it with your palm facing up.|Keep your elbow pinned and push down to straight.|Return slowly. Do all reps, then switch arms.","Moving the elbow|Using the shoulder to push"],
+  oh_cable_tri:["Triceps (long head)","Attach a rope to a cable. Face away and hold the rope behind your head.|Step forward and lean slightly. Elbows point forward.|Straighten your arms overhead.|Bend your elbows to get a big stretch behind your head.","Elbows flaring out wide|Arching your lower back"],
+  db_oh_tri:["Triceps (long head)","Sit on an upright bench. Hold one dumbbell with both hands overhead.|Keep elbows pointing up and close to your head.|Lower the dumbbell behind your head.|Straighten your arms back up.","Elbows flaring out|Going too heavy for a full stretch"],
+  skull:["Triceps","Lie on a flat bench holding an EZ bar over your chest.|Tilt your arms back a little toward your head.|Bend your elbows to lower the bar just behind your head.|Straighten your arms back up.","Elbows flaring out|Moving the upper arms a lot"],
+  dips:["Triceps, chest, front delts","Grab the dip bars and lift yourself up with straight arms.|Keep your body upright and chest up.|Lower until your elbows are at about 90°.|Push back up to straight arms.","Going too deep|Shrugging your shoulders to your ears"],
+  cgbp:["Triceps, chest","Lie on a flat bench. Grip the bar at shoulder width.|Keep your elbows tucked close to your body.|Lower the bar to your lower chest.|Press up to straight arms.","Grip too narrow, which hurts wrists|Elbows flaring out"],
+  machine_dip:["Triceps, chest","Sit in the machine and grab the handles.|Sit tall with your chest up.|Press down until your arms are straight.|Let the handles come up slowly.","Leaning forward too much|Short half reps"],
+  sa_cable_pd:["Triceps","Attach a single handle to a high cable.|Grip with palm facing down. Pin your elbow at your side.|Push down to full lockout and squeeze.|Return slowly. Switch arms.","Moving the elbow|Twisting your body"],
+  pullup:["Lats, upper back, biceps","Hang from the bar with hands a bit wider than shoulders, palms facing away.|Pull your shoulders down and back first.|Pull your elbows down until your chin is over the bar.|Lower slowly to a full hang.","Kicking and swinging|Half reps that never reach full hang"],
+  neutral_pullup:["Lats, upper back, biceps","Grab the parallel handles, palms facing each other.|Hang with straight arms.|Pull your chest up toward the handles.|Lower slowly to a full hang.","Swinging|Not going all the way down"],
+  heavy_pd:["Lats, upper back","Sit at the pulldown with thighs locked under the pads.|Grip the bar wide.|Pull the bar to your upper chest, driving elbows down.|Let it up slowly until arms are straight.","Leaning way back and yanking|Pulling behind your neck"],
+  wide_pd:["Lats, upper back","Sit with thighs under the pads. Grip the bar wide.|Lift your chest and lean back slightly.|Pull the bar to the top of your chest.|Control it up to straight arms.","Using momentum|Not letting the arms fully straighten"],
+  sa_pd:["Lats","Attach a single handle to a high cable. Kneel or sit facing it.|Reach up with one arm for a big stretch.|Pull your elbow down to your side.|Return slowly. Switch arms.","Twisting the body to pull|Short range"],
+  machine_pd:["Lats, upper back","Adjust the seat so the pads hold your thighs.|Grab the handles with arms straight.|Drive your elbows down toward your back pockets.|Return slowly.","Shrugging|Rushing the way up"],
+  neutral_pd:["Lats, mid back, biceps","Attach a close grip V handle. Sit with thighs under pads.|Lean back a little with your chest up.|Pull the handle to your upper chest.|Let it up slowly to straight arms.","Leaning back too far|Pulling with your arms only"],
+  chinup:["Lats, biceps","Hang from the bar with palms facing you, hands shoulder width.|Pull your shoulders down.|Pull until your chin is over the bar.|Lower slowly to a full hang.","Kipping or swinging|Half reps"],
+  tbar_row:["Mid back, lats, rear delts","Lie face down on the chest pad and grab the handles.|Keep your chest on the pad.|Row the handles up, squeezing shoulder blades together.|Lower slowly to straight arms.","Lifting your chest off the pad|Jerking the weight"],
+  cable_row:["Mid back, lats","Sit at the cable row with feet on the platform, knees slightly bent.|Sit tall with arms straight.|Pull the handle to your belly and squeeze your back.|Return slowly with a slight forward stretch.","Rocking back and forth a lot|Rounding your back"],
+  machine_row:["Mid back, lats","Adjust the seat so the handles are at chest height.|Chest on the pad, arms straight.|Pull your elbows back past your body.|Return slowly.","Lifting your chest off the pad|Shrugging"],
+  cs_db_row:["Mid back, lats, rear delts","Set an incline bench at about 30°. Lie face down with dumbbells.|Let your arms hang straight.|Row the dumbbells to your hips.|Lower slowly.","Lifting your chest off|Using a heavy weight with short reps"],
+  bb_row:["Mid back, lats, lower back","Hold a barbell with an overhand grip. Hinge at the hips to about 45°.|Keep your back flat and knees soft.|Pull the bar to your belly button.|Lower with control.","Rounding your lower back|Standing up as you pull"],
+  landmine_row:["Mid back, lats","Straddle a barbell set in a landmine. Put a V handle under the bar.|Hinge over with a flat back.|Row the plates up to your chest.|Lower slowly.","Rounding your back|Jerking the weight up"],
+  machine_row_heavy:["Mid back, lats","Set the seat so handles are at chest height.|Chest on the pad.|Row heavy but strict, elbows back.|Lower with control.","Leaving the pad|Half reps"],
+  sa_db_row:["Lats, mid back","Put one knee and hand on a bench. Hold a dumbbell in the other hand.|Keep your back flat.|Pull the dumbbell to your hip.|Lower to a full stretch. Switch sides.","Twisting your torso|Pulling to your chest instead of your hip"],
+  sa_cable_row:["Lats, mid back","Set a cable at chest height with a single handle.|Stand or sit and reach forward for a stretch.|Row the handle to your hip.|Return slowly. Switch arms.","Rotating the body|Short range"],
+  meadows:["Lats, upper back","Stand side on to a landmine bar. Hold the thick end with one hand.|Hinge over with your other hand on your knee.|Row with your elbow flared out.|Lower slowly. Switch sides.","Rounding your back|Jerking the bar"],
+  wide_cable_row:["Upper back, rear delts","Attach a wide bar to the seated cable row.|Sit tall with arms straight.|Pull the bar to your upper belly with elbows out.|Return slowly.","Rocking back|Shrugging"],
+  high_row:["Upper back, lats","Sit in the high row machine and grab the handles above you.|Chest up.|Pull down and back at an angle.|Return slowly.","Leaning back a lot|Rushing"],
+  straight_arm_pd:["Lats","Attach a bar or rope to a high cable. Step back and hinge slightly.|Arms almost straight in front.|Sweep the bar down to your thighs.|Let it rise slowly to head height.","Bending elbows so it becomes a pushdown|Using your body weight"],
+  db_pullover:["Lats, chest","Lie across a bench with upper back on it. Hold one dumbbell over your chest.|Keep a soft bend in your elbows.|Lower the dumbbell behind your head for a big stretch.|Pull it back over your chest.","Going too heavy|Dropping your hips a lot"],
+  rope_pullover:["Lats","Attach a rope to a high cable. Step back and hinge forward.|Arms straight in front of you.|Pull the rope down to your thighs.|Let it rise slowly.","Bending your elbows a lot|Standing too upright"],
+  face_pull:["Rear delts, upper back","Set a rope at face height on a cable.|Grip with thumbs pointing back.|Pull the rope toward your eyes, hands moving apart.|Return slowly.","Pulling to your chest|Using too much weight"],
+  reverse_pec:["Rear delts","Sit facing the pec deck pad. Set handles to the back position.|Grab the handles with arms straight in front.|Open your arms wide behind you.|Return slowly.","Shrugging|Swinging the weight"],
+  rear_cable_fly:["Rear delts","Set two cables at shoulder height. Cross the cables so each hand holds the opposite side.|Arms straight in front.|Pull your arms out wide.|Return slowly.","Bending your elbows a lot|Leaning back"],
+  bent_rear_raise:["Rear delts","Sit on the bench end and lean forward, chest near your knees.|Hold light dumbbells under your legs.|Raise your arms out wide, leading with the pinkies.|Lower slowly.","Using your back to lift|Going too heavy"],
+  ez_curl:["Biceps","Stand holding an EZ bar with an underhand grip.|Elbows at your sides.|Curl the bar up to your chest.|Lower slowly to straight arms.","Swinging your back|Elbows drifting forward"],
+  bb_curl:["Biceps","Stand holding a barbell with an underhand grip, shoulder width.|Elbows at your sides.|Curl up to your chest.|Lower slowly.","Leaning back to lift|Half reps"],
+  alt_db_curl:["Biceps","Stand with dumbbells at your sides, palms facing in.|Curl one up, turning the palm up as you go.|Squeeze at the top.|Lower slowly, then switch arms.","Swinging|Rushing"],
+  incline_db_curl:["Biceps (long head)","Set a bench at about 45°. Sit back with dumbbells hanging down.|Let your arms hang behind your body.|Curl up without moving your elbows.|Lower slowly to a full stretch.","Bringing elbows forward|Going too heavy"],
+  bayesian:["Biceps (long head)","Set a cable at the lowest point. Face away from it.|Hold the handle with your arm behind you.|Curl up without letting the elbow come forward.|Lower slowly. Switch arms.","Elbow swinging forward|Leaning a lot"],
+  preacher:["Biceps","Sit at the preacher bench with your arms on the pad.|Hold an EZ bar or dumbbells.|Curl up to just short of vertical.|Lower slowly to almost straight.","Lifting elbows off the pad|Dropping fast at the bottom"],
+  hammer:["Biceps, forearms","Stand with dumbbells at your sides, thumbs up.|Keep elbows still.|Curl up with thumbs pointing up.|Lower slowly.","Swinging|Elbows drifting"],
+  rope_hammer:["Biceps, forearms","Attach a rope to a low cable.|Hold it with thumbs up.|Curl up and squeeze.|Lower slowly.","Leaning back|Elbows moving"],
+  rev_ez_curl:["Forearms, biceps","Hold an EZ bar with palms facing down.|Elbows at your sides.|Curl up to chest height.|Lower slowly.","Wrists bending back|Using momentum"],
+  cable_curl:["Biceps","Attach a straight bar to a low cable.|Stand close with elbows at your sides.|Curl up and squeeze hard.|Lower slowly.","Stepping away and leaning|Elbows coming forward"],
+  concentration:["Biceps","Sit on a bench with legs apart. Rest your elbow on your inner thigh.|Hold a dumbbell with arm straight.|Curl up slowly and squeeze.|Lower all the way. Switch arms.","Lifting the elbow off your leg|Rushing"],
+  spider:["Biceps","Lie face down on an incline bench. Arms hang straight down.|Hold dumbbells or an EZ bar.|Curl up without moving your upper arms.|Lower slowly.","Swinging|Going too heavy"],
+  squat:["Quads, glutes, hamstrings, core","Bar on your upper back, feet shoulder width, toes slightly out.|Take a deep breath and brace your core.|Sit down and back until hips are just below your knees.|Drive up through your whole foot.","Knees caving in|Heels lifting|Rounding your lower back"],
+  hack_squat:["Quads, glutes","Stand on the platform with your back on the pad and shoulders under the pads.|Feet shoulder width, a little low on the platform.|Lower slowly until thighs are at least parallel.|Push back up without locking your knees hard.","Heels lifting|Going too shallow"],
+  smith_squat:["Quads, glutes","Bar on your upper back. Feet slightly in front of you.|Unhook the bar and brace.|Sit straight down until thighs are parallel or lower.|Push back up.","Feet too far back|Rounding your back"],
+  rdl:["Hamstrings, glutes, lower back","Stand holding a barbell at your thighs, feet hip width.|Soft knees. Push your hips back.|Slide the bar down your legs until hamstrings are fully stretched.|Squeeze glutes and stand up.","Rounding your back|Bending knees too much so it becomes a squat"],
+  db_rdl:["Hamstrings, glutes","Stand holding dumbbells at your thighs.|Soft knees, push hips back.|Slide the dumbbells down your legs.|Stand up by squeezing your glutes.","Rounding your back|Letting dumbbells drift away from your legs"],
+  smith_rdl:["Hamstrings, glutes","Stand at the Smith bar and hold it at your thighs.|Unhook and push your hips back.|Lower until hamstrings are fully stretched.|Stand up tall.","Rounding your back|Bar too far from your legs"],
+  leg_press:["Quads, glutes","Sit with your back flat on the pad. Feet shoulder width, middle of the platform.|Release the safety.|Lower until knees are at about 90°.|Push up without locking your knees.","Lower back lifting off the pad|Locking knees hard at the top"],
+  bss:["Quads, glutes","Stand a step in front of a bench. Put your back foot on it.|Hold dumbbells at your sides.|Lower until your front thigh is parallel to the floor.|Push up through the front foot. Switch legs.","Front knee caving in|Standing too close to the bench"],
+  walking_lunge:["Quads, glutes","Hold dumbbells at your sides.|Take a long step forward.|Lower until your back knee almost touches the floor.|Push up and step into the next lunge.","Short steps|Leaning forward too much"],
+  leg_curl:["Hamstrings","Lie face down with the pad just above your heels.|Hold the handles and press hips down.|Curl your heels toward your glutes.|Lower slowly.","Hips lifting|Dropping the weight"],
+  seated_leg_curl:["Hamstrings","Sit with the pad behind your lower legs and the thigh pad locked.|Lean forward slightly.|Curl your legs down and back.|Return slowly.","Thigh pad too loose|Rushing"],
+  leg_ext:["Quads","Sit with the pad on your lower shins. Line up knees with the pivot.|Hold the handles.|Straighten your legs and pause at the top.|Lower slowly.","Swinging the weight|Lifting hips off the seat"],
+  calf:["Calves","Stand on the calf raise step with shoulders under the pads.|Let your heels drop for a full stretch.|Push up onto your toes as high as you can.|Pause, then lower slowly.","Bouncing|Bending your knees"],
+  seated_calf:["Calves (soleus)","Sit with knees under the pad and balls of your feet on the step.|Release the safety.|Lower heels for a stretch.|Push up high and pause.","Bouncing|Short range"],
+  lp_calf:["Calves","Sit in the leg press. Put the balls of your feet on the bottom edge.|Legs straight with soft knees.|Push the platform with your toes.|Let heels come back for a stretch.","Bending your knees|Feet slipping off"],
+  hlr:["Lower abs, hip flexors","Hang from a pull-up bar with straight arms.|Brace your core so you do not swing.|Lift your legs and curl your pelvis up.|Lower slowly.","Swinging|Only lifting legs without curling the pelvis"],
+  cable_crunch:["Abs","Kneel facing a high cable with a rope behind your head.|Hips stay still.|Crunch your ribs down toward your hips.|Return slowly.","Sitting back on your heels to pull|Using your arms"],
+  ab_wheel:["Abs, core","Kneel on a mat holding the wheel under your shoulders.|Brace your core and tuck your pelvis.|Roll forward slowly as far as you can with a flat back.|Pull back to the start.","Lower back sagging|Going further than you can control"]
+};
+
 /* ===== Weekly templates. Each slot: [pool, sets, reps, rest sec, rotation]
    "b" = main lift, changes every 4 week block.  "w" = accessory, changes every week. ===== */
 const DAYS = {
@@ -494,6 +620,8 @@ const IC = {
   cable:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M18 3v6M6 9l5 8M18 9l-5 8"/><circle cx="12" cy="19" r="2"/></svg>',
   body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M4 8h16M12 8v6M8.5 21l3.5-7 3.5 7"/></svg>',
   machine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="6" height="18" rx="1.5"/><path d="M10 8h8M10 14h6M18 6v4"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
@@ -715,7 +843,7 @@ function exCard(e,live,tone,isNew,deload){
         +'<label><input id="r-'+e.id+'-'+i+'" inputmode="numeric" aria-label="Reps set '+(i+1)+'" placeholder="'+(rr?rr.hi:parseInt(e.reps))+'" value="'+(s?s[1]:"")+'"'+(live?"":" disabled")+'><span>reps</span></label>'
         +'<button class="ck" aria-label="'+(s?"Undo set ":"Done set ")+(i+1)+'" data-act="set" data-id="'+e.id+'" data-i="'+i+'"'+(live?"":" disabled")+'>'+IC.check+'</button></div>';
     }
-    html+='<div class="exbody"><div class="cue">'+esc(e.cue)+'</div><div class="hint '+h.cls+'">'+esc(h.t)+'</div><div class="sets">'+rows+'</div></div>';
+    html+='<div class="exbody"><button class="howbtn" data-act="how" data-id="'+e.id+'"><span class="pi">'+IC.play+'</span><span>How to do it<small>Steps, mistakes to avoid, video</small></span></button><div class="cue">'+esc(e.cue)+'</div><div class="hint '+h.cls+'">'+esc(h.t)+'</div><div class="sets">'+rows+'</div></div>';
   }
   return html+'</div>';
 }
@@ -900,6 +1028,8 @@ document.addEventListener("click",ev=>{
   else if(a==="swap"){day(k).prog=b.dataset.p;trainView=b.dataset.p;weekOffset=0;openEx.clear();save("days");renderAll();}
   else if(a==="unswap"){delete day(k).prog;trainView=null;openEx.clear();save("days");renderAll();}
   else if(a==="set"){logSet(b.dataset.id,+b.dataset.i);}
+  else if(a==="how"){openHow(b.dataset.id,b);}
+  else if(a==="howClose"){closeHow();}
   else if(a==="export"){exportData();}
   else if(a==="addW"){
     const kg=parseFloat($("#bwKg").value); if(!(kg>30&&kg<250)){$("#bwKg").focus();return;}
@@ -951,6 +1081,32 @@ function logSet(id,i){
   }
 }
 
+/* ===== How-to sheet ===== */
+let howReturn=null;
+function openHow(id,from){
+  const L=LIB[id], H=HOWTO[id]; if(!L||!H) return;
+  howReturn=from||null;
+  const steps=H[1].split("|"), avoid=H[2].split("|");
+  const q=encodeURIComponent(L[0]+" proper form");
+  $("#howBody").innerHTML='<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
+    +'<div><div class="small muted">How to do it</div><h2 id="howTitle">'+esc(L[0])+'</h2></div>'
+    +'<div class="mus">'+H[0].split(", ").map(m=>'<span>'+esc(m)+'</span>').join("")+'</div>'
+    +'<div><div class="ctitle" style="margin-bottom:10px">Steps</div><ol class="steps">'+steps.map(s=>'<li><span>'+esc(s)+'</span></li>').join("")+'</ol></div>'
+    +'<div class="avoid"><b>Avoid these mistakes</b><ul>'+avoid.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ul></div>'
+    +'<div class="tipbox"><b>Coach tip:</b> '+esc(L[2])+'</div>'
+    +'<a class="cta" href="https://www.youtube.com/results?search_query='+q+'" target="_blank" rel="noopener">Watch a video<span class="arr">'+IC.play+'</span></a>'
+    +'<p class="small muted" style="margin:0;text-align:center">Opens YouTube with form videos for this exercise.</p>';
+  const bk=$("#howBack"); bk.hidden=false; document.body.style.overflow="hidden";
+  requestAnimationFrame(()=>{bk.classList.add("show"); bk.querySelector(".close").focus();});
+}
+function closeHow(){
+  const bk=$("#howBack"); if(bk.hidden) return; bk.classList.remove("show"); document.body.style.overflow="";
+  setTimeout(()=>{bk.hidden=true;},200);
+  if(howReturn&&document.body.contains(howReturn)) howReturn.focus();
+}
+$("#howBack").addEventListener("click",e=>{if(e.target.id==="howBack")closeHow();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHow();});
+
 /* ===== Pull to refresh ===== */
 (function(){
   const el=$("#ptr"), txt=$("#ptrText"), TH=70; let y0=null, dy=0, busy=false;
@@ -958,7 +1114,7 @@ function logSet(id,i){
     const ready=d>=TH;el.classList.toggle("ready",ready);txt.textContent=ready?"Release to refresh":"Pull to refresh";}
   function hide(){el.classList.add("anim");el.style.opacity=0;el.style.transform="translate(-50%,-80px)";el.classList.remove("ready","busy");}
   document.addEventListener("touchstart",e=>{
-    if(busy||window.scrollY>0||e.touches.length!==1||e.target.closest("input,select,textarea,.scroller,.rest")){y0=null;return;}
+    if(busy||window.scrollY>0||e.touches.length!==1||e.target.closest("input,select,textarea,.scroller,.rest,.sheet-back")){y0=null;return;}
     y0=e.touches[0].clientY; dy=0;
   },{passive:true});
   document.addEventListener("touchmove",e=>{
