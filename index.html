@@ -228,12 +228,21 @@ input,select{font:inherit;color:var(--ink);background:var(--glass-hi);border:1px
 .tab{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;font-size:11px;font-weight:500;color:var(--muted);border-radius:20px}
 .tab svg{width:22px;height:22px}
 .tab[aria-selected="true"]{color:var(--teal-d);background:var(--teal-s)}
-@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+/* pull to refresh */
+.ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:999px;background:rgba(255,255,255,.85);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--stroke);box-shadow:var(--shadow);font-size:12px;font-weight:500;color:var(--muted);transform:translate(-50%,-80px);opacity:0;pointer-events:none}
+.ptr .spin{width:26px;height:26px;border-radius:50%;background:var(--teal-s);color:var(--teal-d);display:grid;place-items:center}
+.ptr .spin svg{width:15px;height:15px;transition:transform .15s}
+.ptr.ready .spin svg{transform:rotate(180deg)}
+.ptr.busy .spin svg{animation:ptrspin .8s linear infinite}
+.ptr.anim{transition:transform .25s ease,opacity .25s ease}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.ptr.busy .spin svg{animation:none}}
 </style>
 </head>
 <body>
 
 <div class="bgfx" aria-hidden="true"></div>
+<div class="ptr" id="ptr" role="status" aria-live="polite"><span class="spin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span id="ptrText">Pull to refresh</span></div>
 <div class="app">
   <header class="top">
     <div>
@@ -594,7 +603,7 @@ function weekLabel(w){const b=Math.floor((w-1)/4)+1;return "Week "+w+" · Block 
 function arc(r,p,color,w,bg){
   const c=2*Math.PI*r; p=Math.max(0,Math.min(p,1));
   return (bg!==false?'<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+(bg||'rgba(27,42,40,.08)')+'" stroke-width="'+w+'"/>':'')
-    +'<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var('+color+')" stroke-width="'+w+'" stroke-linecap="round" stroke-dasharray="'+(c*p).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 60 60)"/>';
+    +(p<=0?'':'<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var('+color+')" stroke-width="'+w+'" stroke-linecap="round" stroke-dasharray="'+(c*p).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 60 60)"/>');
 }
 function miniRing(p,color){return '<svg viewBox="0 0 120 120" aria-hidden="true">'+arc(46,p,color,16)+'</svg>';}
 function setHeader(title,sub){$("#pageTitle").textContent=title;$("#pageSub").textContent=sub;}
@@ -941,6 +950,37 @@ function logSet(id,i){
     if(justDone){const nw=$("#w-"+id+"-"+(i+1));if(nw&&!nw.value)nw.placeholder=fmtW(s.s[i][0]);}
   }
 }
+
+/* ===== Pull to refresh ===== */
+(function(){
+  const el=$("#ptr"), txt=$("#ptrText"), TH=70; let y0=null, dy=0, busy=false;
+  function show(d){el.classList.remove("anim");const p=Math.min(d/TH,1);el.style.opacity=p;el.style.transform="translate(-50%,"+(-80+Math.min(d,TH+20)*1.1)+"px)";
+    const ready=d>=TH;el.classList.toggle("ready",ready);txt.textContent=ready?"Release to refresh":"Pull to refresh";}
+  function hide(){el.classList.add("anim");el.style.opacity=0;el.style.transform="translate(-50%,-80px)";el.classList.remove("ready","busy");}
+  document.addEventListener("touchstart",e=>{
+    if(busy||window.scrollY>0||e.touches.length!==1||e.target.closest("input,select,textarea,.scroller,.rest")){y0=null;return;}
+    y0=e.touches[0].clientY; dy=0;
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(y0===null) return; const d=e.touches[0].clientY-y0;
+    if(d<=0||window.scrollY>0){if(dy>0)hide();dy=0;return;}
+    dy=d*0.55; if(dy>4&&e.cancelable) e.preventDefault(); show(dy);
+  },{passive:false});
+  document.addEventListener("touchend",()=>{
+    if(y0===null) return; y0=null;
+    if(dy>=TH) refresh(); else hide(); dy=0;
+  });
+  async function refresh(){
+    busy=true; el.classList.add("anim","busy"); el.classList.remove("ready"); el.style.opacity=1; el.style.transform="translate(-50%,0)"; txt.textContent="Refreshing";
+    if(!inFrame){
+      try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)await reg.update();}catch(e){}
+      location.reload(); return;
+    }
+    try{await connect();}catch(e){}
+    renderAll(); txt.textContent="Up to date";
+    setTimeout(()=>{hide();busy=false;},700);
+  }
+})();
 
 /* ===== Tabs ===== */
 function setTab(t){
