@@ -274,7 +274,7 @@ a.cta{text-decoration:none}
       <h1 id="pageTitle">Hi, Irfan 👋</h1>
       <div class="sub" id="pageSub">Ready to crush your goals?</div>
     </div>
-    <div class="iconbtn" id="sync" title="Saved on this device" aria-label="Saved on this device">
+    <div class="iconbtn" id="sync" data-act="openCloud" role="button" tabindex="0" title="Saved on this device" aria-label="Saved on this device">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.7-8.95A6 6 0 0 1 17.8 8.5 4 4 0 0 1 17 18z"/></svg><span class="d"></span>
     </div>
   </header>
@@ -650,7 +650,7 @@ const cached = lsGet(); if(cached) loadInto(cached);
 
 let refs = null;
 const dirty = {}; const writing = {}; let saveT = null;
-function save(key){lsSet(); if(!refs) return; dirty[key]=true; clearTimeout(saveT); saveT=setTimeout(flush,700);}
+function save(key){lsSet(); cloudQueue(); if(!refs) return; dirty[key]=true; clearTimeout(saveT); saveT=setTimeout(flush,700);}
 async function flush(){
   for(const k of Object.keys(dirty)){
     if(!dirty[k]||writing[k]) continue;
@@ -774,7 +774,8 @@ function renderToday(){
       +'<div class="row" style="margin:14px 0"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>'
       +'<button class="cta" data-act="openTrain">'+(ds?"Continue Workout":"Start Workout")+'<span class="arr">'+IC.arrow+'</span></button></div>';
 
-  $("#v-today").innerHTML =
+  const saveCode=(cloudOn&&syncKey&&lsUi("syncAck")!=="1")?'<div class="glass stack" style="background:var(--teal-s)"><div class="ctitle">Your data now backs up to the cloud</div><p class="small" style="margin:0">Save your sync code somewhere safe, like Notes. You need it to restore everything on a new phone.</p><div class="tipbox num" style="font-weight:600;letter-spacing:.04em;word-break:break-all;user-select:all;-webkit-user-select:all">'+esc(syncKey)+'</div><div class="row wrap"><button class="btn" data-act="copyCode">Copy code</button><button class="btn ghost" data-act="ackCode">I saved it</button></div></div>':'';
+  $("#v-today").innerHTML = saveCode +
     '<div class="glass"><div class="ctitle" style="margin-bottom:12px">Today\'s Progress</div><div class="prog">'
     +'<div class="ringbox"><svg viewBox="0 0 120 120">'+arc(50,score/100,"--teal",12)+'</svg><div class="c"><div><b class="num">'+score+'%</b><span>of today</span></div></div></div>'
     +'<div class="legend">'
@@ -935,7 +936,16 @@ function renderProgress(){
         :'<div class="empty">No sets logged for this lift yet. Tick off sets in Workouts and your chart shows up here.</div>')
     +'</div>'
     +'<div class="glass"><div class="ctitle">How Your Plan Changes</div><p class="small muted" style="margin:8px 0 0">Fresh accessory moves every Monday for new angles. Main lifts stay for 4 weeks so you can keep adding weight. Hit the top rep on every set, then go up a little. Every 8th week is a lighter deload week.</p></div>'
-    +(inFrame?'':'<div class="glass stack"><div class="ctitle">Backup</div><p class="small muted" style="margin:0">Your data lives on this phone. Save a backup now and then.</p><div class="row wrap"><button class="btn" data-act="export">Save backup</button><label class="btn ghost" for="importFile" tabindex="0" style="display:inline-block">Restore backup</label><input type="file" id="importFile" accept="application/json,.json" hidden></div><div id="bkMsg" class="small muted"></div></div>');
+    +(inFrame?'':'<div class="glass stack" id="cloudCard"><div class="row between"><div class="ctitle">Cloud Backup</div><span class="tag new" style="margin:0">Auto</span></div>'
+      +'<div class="small" id="cloudState" style="font-weight:500;color:var(--teal-d)"></div>'
+      +'<p class="small muted" style="margin:0">Every change backs up to the cloud by itself. To restore on a new phone, you need this sync code. Keep it in your Notes or password manager.</p>'
+      +'<div class="tipbox num" id="codeBox" style="font-weight:600;letter-spacing:.04em;word-break:break-all;user-select:all;-webkit-user-select:all">'+esc(syncKey)+'</div>'
+      +'<div class="row wrap"><button class="btn" data-act="copyCode">Copy code</button><button class="btn ghost" data-act="backupNow">Back up now</button></div>'
+      +'<div class="ctitle" style="margin-top:6px">Restore from another phone</div>'
+      +'<div class="form2" style="grid-template-columns:1fr auto"><input id="restoreCode" placeholder="Paste your sync code" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Sync code"><button class="btn" data-act="restoreCloud">Restore</button></div>'
+      +'<div id="cloudMsg" class="small muted"></div>'
+      +'<details><summary class="small muted" style="cursor:pointer">File backup</summary><div class="row wrap" style="margin-top:8px"><button class="btn ghost" data-act="export">Save file</button><label class="btn ghost" for="importFile" tabindex="0" style="display:inline-block">Restore file</label><input type="file" id="importFile" accept="application/json,.json" hidden></div><div id="bkMsg" class="small muted"></div></details></div>');
+  cloudStatus();
 }
 
 /* charts */
@@ -988,6 +998,79 @@ function tickRest(){
 $("#restAdd").onclick=()=>{restEnd=Math.max(restEnd,Date.now())+15000;$("#rest").classList.remove("go");clearInterval(restInt);restInt=setInterval(tickRest,250);tickRest();};
 $("#restSkip").onclick=()=>{clearInterval(restInt);$("#rest").hidden=true;};
 
+/* ===== Cloud backup (installed app only) ===== */
+const CLOUD={url:"https://gdierlohxvdnemvhundo.supabase.co/rest/v1/rpc/",key:"sb_publishable_wN5UpW7qUdtQrCNAifIQQw_OFHKFCek"};
+const cloudOn=!inFrame;
+let syncKey=lsUi("syncKey")||"", cloudT=null, cloudBusy=false, cloudErr="";
+function genKey(){const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",b=new Uint8Array(32);crypto.getRandomValues(b);let s="";for(let i=0;i<32;i++){s+=A[b[i]%A.length];if(i%4===3&&i<31)s+="-";}return s;}
+async function rpc(fn,body,keepalive){
+  const r=await fetch(CLOUD.url+fn,{method:"POST",headers:{"apikey":CLOUD.key,"Content-Type":"application/json"},body:JSON.stringify(body),keepalive:!!keepalive});
+  if(!r.ok) throw new Error("cloud "+r.status); return r.json();
+}
+function ago(iso){if(!iso)return "never";const m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(m<1)return "just now";if(m<60)return m+" min ago";const h=Math.round(m/60);if(h<24)return h+" h ago";return Math.round(h/24)+" days ago";}
+function cloudStatus(){
+  if(!cloudOn) return;
+  const at=lsUi("syncAt");
+  if(cloudBusy) setSync(true,"Backing up to the cloud");
+  else if(cloudErr) setSync(false,cloudErr);
+  else setSync(!!at,at?"Backed up "+ago(at):"Not backed up yet");
+  const s=$("#cloudState"); if(s) s.textContent=cloudBusy?"Backing up now":cloudErr?cloudErr:(at?"On · last backup "+ago(at):"On · first backup pending");
+}
+function cloudQueue(){if(!cloudOn||!syncKey)return;lsUi("syncDirty","1");clearTimeout(cloudT);cloudT=setTimeout(cloudPush,4000);}
+async function cloudPush(keepalive){
+  if(!cloudOn||!syncKey||cloudBusy) return; cloudBusy=true; cloudStatus();
+  try{const t=await rpc("vt_put",{p_key:syncKey,p_data:{app:"vtaper",v:1,data:S}},keepalive);lsUi("syncAt",t);lsUi("syncDirty","0");cloudErr="";}
+  catch(e){cloudErr="Offline. Backs up when you're online.";}
+  finally{cloudBusy=false;cloudStatus();}
+}
+function mergeData(local,remote){
+  const out={days:Object.assign({},remote.days||{},local.days||{}),lifts:{},body:{w:mergeW((remote.body&&remote.body.w)||[],(local.body&&local.body.w)||[])}};
+  const ids=new Set(Object.keys(remote.lifts||{}).concat(Object.keys(local.lifts||{})));
+  ids.forEach(id=>{const m={};((remote.lifts||{})[id]||[]).forEach(s=>m[s.d]=s);((local.lifts||{})[id]||[]).forEach(s=>m[s.d]=s);out.lifts[id]=Object.values(m).sort((a,b)=>a.d<b.d?-1:1).slice(-24);});
+  return out;
+}
+async function cloudPull(){
+  if(!cloudOn||!syncKey) return false; cloudBusy=true; cloudStatus();
+  try{
+    const r=await rpc("vt_get",{p_key:syncKey}); cloudErr="";
+    if(r&&r.data&&r.data.data&&r.updated_at!==lsUi("syncAt")){
+      const dirtyLocal=lsUi("syncDirty")==="1";
+      loadInto(dirtyLocal?mergeData(S,r.data.data):mergeData({},r.data.data)); lsSet(); lsUi("syncAt",r.updated_at);
+      if(dirtyLocal) lsUi("syncDirty","1");
+      renderAll(); return true;
+    }
+    return !!r;
+  }catch(e){cloudErr="Offline. Backs up when you're online.";return false;}
+  finally{cloudBusy=false;cloudStatus();}
+}
+async function cloudInit(){
+  if(!cloudOn) return;
+  if(!syncKey){syncKey=genKey();lsUi("syncKey",syncKey);lsUi("syncDirty","1");}
+  await cloudPull();
+  if(lsUi("syncDirty")==="1") await cloudPush();
+  cloudStatus();
+}
+async function cloudRestore(code){
+  code=(code||"").trim().toUpperCase().replace(/\s+/g,"");
+  const msg=$("#cloudMsg"); if(code.length<32){msg.textContent="That code looks too short. It has 8 groups of 4 letters and numbers.";return;}
+  msg.textContent="Looking for your backup";
+  try{
+    const r=await rpc("vt_get",{p_key:code});
+    if(!r||!r.data||!r.data.data){msg.textContent="No backup found for that code. Check it and try again.";return;}
+    loadInto(mergeData(S,r.data.data)); lsSet();
+    syncKey=code; lsUi("syncKey",code); lsUi("syncAt",r.updated_at); lsUi("syncAck","1"); lsUi("syncDirty","1");
+    await cloudPush(); renderAll(); const m=$("#cloudMsg"); if(m) m.textContent="Restored. This phone now backs up with that code.";
+  }catch(e){msg.textContent="Could not reach the cloud. Check your internet and try again.";}
+}
+async function copyCode(btn){
+  try{await navigator.clipboard.writeText(syncKey);btn.textContent="Copied";}
+  catch(e){const el=$("#codeBox");if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);}btn.textContent="Selected. Tap Copy";}
+  setTimeout(()=>{btn.textContent="Copy code";},1800);
+}
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&cloudOn&&syncKey&&lsUi("syncDirty")==="1"){clearTimeout(cloudT);cloudPush(true);}});
+window.addEventListener("online",()=>{if(cloudOn&&syncKey&&lsUi("syncDirty")==="1")cloudPush();});
+setInterval(cloudStatus,60000);
+
 /* ===== Backup (installed app only) ===== */
 async function exportData(){
   const blob=new Blob([JSON.stringify({app:"vtaper",v:1,saved:new Date().toISOString(),data:S})],{type:"application/json"});
@@ -1029,6 +1112,11 @@ document.addEventListener("click",ev=>{
   else if(a==="unswap"){delete day(k).prog;trainView=null;openEx.clear();save("days");renderAll();}
   else if(a==="set"){logSet(b.dataset.id,+b.dataset.i);}
   else if(a==="how"){openHow(b.dataset.id,b);}
+  else if(a==="copyCode"){copyCode(b);}
+  else if(a==="ackCode"){lsUi("syncAck","1");renderToday();}
+  else if(a==="backupNow"){clearTimeout(cloudT);cloudPush();}
+  else if(a==="restoreCloud"){cloudRestore($("#restoreCode").value);}
+  else if(a==="openCloud"){if(cloudOn){setTab("progress");const c=$("#cloudCard");if(c)c.scrollIntoView({behavior:"smooth",block:"start"});}}
   else if(a==="howClose"){closeHow();}
   else if(a==="export"){exportData();}
   else if(a==="addW"){
@@ -1129,6 +1217,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHow();});
   async function refresh(){
     busy=true; el.classList.add("anim","busy"); el.classList.remove("ready"); el.style.opacity=1; el.style.transform="translate(-50%,0)"; txt.textContent="Refreshing";
     if(!inFrame){
+      try{if(syncKey&&lsUi("syncDirty")==="1")await cloudPush();}catch(e){}
       try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)await reg.update();}catch(e){}
       location.reload(); return;
     }
@@ -1157,6 +1246,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&tab!=="tr
 
 setTab(tab);
 connect();
+cloudInit();
 if(!inFrame&&"serviceWorker" in navigator&&location.protocol==="https:"){try{navigator.serviceWorker.register("sw.js");}catch(e){}}
 })();
 </script>
