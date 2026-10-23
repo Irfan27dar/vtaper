@@ -268,6 +268,17 @@ a.cta{text-decoration:none}
 .frow .fp span{font-size:11px;color:var(--muted)}
 .lean{display:inline-block;font-size:10px;font-weight:600;background:var(--teal-s);color:var(--teal-d);border-radius:99px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 
+/* swap */
+.exbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.howbtn .pi.swi svg{margin-left:0;width:15px;height:15px}
+.tag.swp{background:var(--blue-s);color:#2a5fae}
+.srow{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;background:rgba(255,255,255,.85);border:1px solid var(--stroke);border-radius:16px;padding:8px 10px}
+.srow .fn{font-weight:600;font-size:13.5px}
+.srow .fs{font-size:11.5px;color:var(--muted)}
+.srow.cur{border-color:var(--teal);background:var(--teal-s)}
+.usebtn{border:0;border-radius:999px;padding:8px 14px;font-weight:600;font-size:12.5px;background:var(--teal);color:var(--white)}
+.usebtn.ghost{background:var(--white);color:var(--ink);border:1px solid var(--stroke)}
+
 /* supplement guide */
 .stier{display:flex;flex-direction:column;gap:8px}
 .stier h3{font-size:15px}
@@ -542,13 +553,11 @@ const DAYS = {
     [["seated_db_ohp","machine_ohp","arnold"],3,"8-10",120,"w"],
     [["cable_lat","db_lat","machine_lat","leanaway_lat"],4,"12-15",60,"w"],
     [["low_high_fly","incline_db_fly","pec_deck"],3,"12-15",60,"w"],
-    [["rope_pd","bar_pd","sa_pd_rev"],3,"10-12",60,"w"],
-    [["oh_cable_tri","db_oh_tri","skull"],3,"10-12",60,"w"]]},
+    [["oh_cable_tri","rope_pd","db_oh_tri","bar_pd","skull"],3,"10-12",60,"w"]]},
   pull_a:{name:"Pull A",focus:"Back width (lats)",tone:"pull",slots:[
     [["pullup","neutral_pullup","heavy_pd"],4,"6-10",150,"b"],
     [["wide_pd","sa_pd","machine_pd","neutral_pd"],3,"10-12",90,"w"],
     [["tbar_row","cable_row","machine_row","cs_db_row"],3,"8-10",120,"w"],
-    [["straight_arm_pd","db_pullover","rope_pullover"],3,"12-15",60,"w"],
     [["face_pull","reverse_pec","rear_cable_fly"],3,"15",60,"w"],
     [["ez_curl","bb_curl","alt_db_curl"],3,"8-10",75,"w"],
     [["incline_db_curl","bayesian","preacher"],3,"10-12",60,"w"]]},
@@ -557,13 +566,11 @@ const DAYS = {
     [["rdl","db_rdl","smith_rdl"],3,"8-10",150,"b"],
     [["leg_press","bss","walking_lunge"],3,"10-12",120,"w"],
     [["leg_curl","seated_leg_curl"],3,"10-12",75,"w"],
-    [["leg_ext"],3,"12-15",60,"w"],
     [["calf","seated_calf","lp_calf"],4,"10-15",60,"w"],
     [["hlr","cable_crunch","ab_wheel"],3,"10-15",60,"w"]]},
   push_b:{name:"Push B",focus:"Shoulders and triceps",tone:"push",slots:[
     [["machine_ohp","standing_ohp","seated_db_ohp"],4,"6-8",150,"b"],
     [["incline_db","incline_machine","incline_smith"],3,"8-10",120,"w"],
-    [["machine_chest","flat_db","mid_cable_fly"],3,"10-12",90,"w"],
     [["db_lat","cable_y","seated_db_lat","machine_lat"],4,"12-20",60,"w"],
     [["reverse_pec","bent_rear_raise","face_pull"],3,"15",60,"w"],
     [["dips","cgbp","machine_dip"],3,"8-12",90,"w"],
@@ -572,13 +579,11 @@ const DAYS = {
     [["bb_row","landmine_row","machine_row_heavy"],4,"6-8",150,"b"],
     [["neutral_pd","chinup","wide_pd"],3,"8-10",120,"w"],
     [["sa_db_row","sa_cable_row","meadows"],3,"10-12",90,"w"],
-    [["wide_cable_row","high_row","cable_row"],3,"10-12",90,"w"],
     [["reverse_pec","rear_cable_fly","face_pull"],3,"15",60,"w"],
     [["hammer","rope_hammer","rev_ez_curl"],3,"10-12",60,"w"],
     [["cable_curl","concentration","spider"],3,"12-15",60,"w"]]},
   vtaper:{name:"V-Taper",focus:"Delts, arms and core. Easy on legs before match day.",tone:"vt",slots:[
     [["cable_lat","leanaway_lat","seated_db_lat","cable_y"],4,"12-15",60,"w"],
-    [["machine_ohp","arnold","landmine_press"],3,"10-12",90,"w"],
     [["sa_pd","straight_arm_pd","db_pullover"],3,"12",60,"w"],
     [["face_pull","reverse_pec","rear_cable_fly"],3,"15",60,"w"],
     [["preacher","bayesian","incline_db_curl"],3,"10-12",60,"w"],
@@ -593,7 +598,7 @@ const START = new Date(2026,9,12);
 
 function isDeload(w){return w%8===0;}
 const planCache = {};
-function plan(w){
+function planBase(w){
   if(planCache[w]) return planCache[w];
   const block=Math.floor((w-1)/4), out={};
   Object.keys(DAYS).forEach(dk=>{
@@ -608,6 +613,40 @@ function plan(w){
   });
   return planCache[w]=out;
 }
+/* Swaps: main lifts swap for the whole 4 week block, others for that week */
+function swapKey(w,dk,si,main){return (main?"b"+Math.floor((w-1)/4):"w"+w)+"|"+dk+"|"+si;}
+function plan(w){
+  const base=planBase(w), out={}, sw=S.swaps||{};
+  Object.keys(base).forEach(dk=>{
+    const B=base[dk];
+    const ex=B.ex.map((e,si)=>{
+      const sid=sw[swapKey(w,dk,si,e.main)];
+      if(sid&&LIB[sid]&&sid!==e.id){const L=LIB[sid];return Object.assign({},e,{id:sid,n:L[0],inc:L[1],cue:L[2],si,orig:e.id,swapped:true});}
+      return Object.assign({},e,{si,orig:e.id});
+    });
+    out[dk]=Object.assign({},B,{ex});
+  });
+  return out;
+}
+/* Same muscle groups for swapping */
+const GROUPS = {
+  "Upper chest press":["incline_bb","incline_smith","incline_db","incline_machine","landmine_press"],
+  "Chest press":["flat_db","flat_bb","machine_chest","chest_dips","incline_db"],
+  "Chest fly":["low_high_fly","incline_db_fly","pec_deck","mid_cable_fly"],
+  "Shoulder press":["seated_db_ohp","machine_ohp","arnold","standing_ohp","landmine_press"],
+  "Side delts":["cable_lat","db_lat","machine_lat","leanaway_lat","seated_db_lat","cable_y"],
+  "Rear delts":["face_pull","reverse_pec","rear_cable_fly","bent_rear_raise"],
+  "Triceps":["rope_pd","bar_pd","sa_pd_rev","oh_cable_tri","db_oh_tri","skull","sa_cable_pd","dips","cgbp","machine_dip"],
+  "Lats":["pullup","neutral_pullup","chinup","heavy_pd","wide_pd","sa_pd","machine_pd","neutral_pd","straight_arm_pd","db_pullover","rope_pullover"],
+  "Back rows":["tbar_row","cable_row","machine_row","cs_db_row","bb_row","landmine_row","machine_row_heavy","sa_db_row","sa_cable_row","meadows","wide_cable_row","high_row"],
+  "Biceps":["ez_curl","bb_curl","alt_db_curl","incline_db_curl","bayesian","preacher","hammer","rope_hammer","rev_ez_curl","cable_curl","concentration","spider"],
+  "Quads":["squat","hack_squat","smith_squat","leg_press","bss","walking_lunge","leg_ext"],
+  "Hip hinge":["rdl","db_rdl","smith_rdl"],
+  "Hamstring curl":["leg_curl","seated_leg_curl"],
+  "Calves":["calf","seated_calf","lp_calf"],
+  "Abs":["hlr","cable_crunch","ab_wheel"]
+};
+function groupsOf(id){return Object.keys(GROUPS).filter(g=>GROUPS[g].includes(id));}
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
 function weekOf(k){return Math.max(1,Math.floor(Math.round((mondayOf(parseKey(k))-START)/864e5)/7)+1);}
 
@@ -704,6 +743,7 @@ const IC = {
   cable:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M18 3v6M6 9l5 8M18 9l-5 8"/><circle cx="12" cy="19" r="2"/></svg>',
   body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M4 8h16M12 8v6M8.5 21l3.5-7 3.5 7"/></svg>',
   machine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="6" height="18" rx="1.5"/><path d="M10 8h8M10 14h6M18 6v4"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -725,11 +765,11 @@ function iconFor(id){
 /* ===== State + storage ===== */
 let inFrame=true; try{inFrame=window.self!==window.top;}catch(e){inFrame=true;}
 const LS = "vtaper.v1";
-let S = {days:{}, lifts:{}, body:{w:[]}};
+let S = {days:{}, lifts:{}, body:{w:[]}, swaps:{}};
 function lsGet(){try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null;}catch(e){return null;}}
 function lsSet(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
 function lsUi(k,v){try{if(v===undefined)return localStorage.getItem("vtaper.ui."+k);localStorage.setItem("vtaper.ui."+k,v);}catch(e){return null;}}
-function loadInto(o){S.days=o.days||{};S.lifts=o.lifts||{};S.body=o.body&&o.body.w?o.body:{w:[]};}
+function loadInto(o){S.days=o.days||{};S.lifts=o.lifts||{};S.body=o.body&&o.body.w?o.body:{w:[]};S.swaps=o.swaps||{};}
 const cached = lsGet(); if(cached) loadInto(cached);
 
 let refs = null;
@@ -758,9 +798,11 @@ async function connect(){
     if(!user||!db) return;
     const uid=await user.id(); if(!uid) return;
     const col=db.collection("data/users/"+uid);
-    refs={days:col.doc("days"),lifts:col.doc("lifts"),body:col.doc("body")};
-    const [d,l,b]=await Promise.all([refs.days.get(),refs.lifts.get(),refs.body.get()]);
-    const pushLocal=[];
+    const pushLocal0=[];
+    refs={days:col.doc("days"),lifts:col.doc("lifts"),body:col.doc("body"),swaps:col.doc("swaps")};
+    const [d,l,b,sw]=await Promise.all([refs.days.get(),refs.lifts.get(),refs.body.get(),refs.swaps.get()]);
+    if(sw.exists){S.swaps=Object.assign({},clone(sw.data().m||{}),S.swaps);} else if(Object.keys(S.swaps||{}).length) pushLocal0.push("swaps");
+    const pushLocal=pushLocal0;
     if(d.exists){S.days=Object.assign({},S.days,clone(d.data().m||{}));} else if(Object.keys(S.days).length) pushLocal.push("days");
     if(l.exists){S.lifts=Object.assign({},S.lifts,clone(l.data().m||{}));} else if(Object.keys(S.lifts).length) pushLocal.push("lifts");
     if(b.exists){const r=clone(b.data());S.body={w:mergeW(S.body.w||[],r.w||[])};} else if((S.body.w||[]).length) pushLocal.push("body");
@@ -854,7 +896,7 @@ function renderToday(){
   const hero = match
     ? '<div class="hero d-match"><div class="art">'+IC.body+'</div><div class="eyebrow">Sunday · '+weekLabel(w)+'</div><h2>Match Day</h2><p class="muted" style="margin:8px 0 14px;max-width:80%">Football and cricket are your training today. Rest from the gym so your legs stay fresh.</p><button class="cta" data-act="openTrain">Need a gym day instead?<span class="arr">'+IC.arrow+'</span></button></div>'
     : '<div class="hero d-'+tone+'"><div class="art">'+IC[iconFor(P.ex[0].id)]+'</div><div class="eyebrow">'+DAYFULL[d.getDay()]+' · '+weekLabel(w)+'</div><h2>'+esc(P.name)+'</h2><div class="muted" style="margin-top:2px">'+esc(P.focus)+'</div>'
-      +'<div class="meta"><span class="num">'+P.ex.length+' exercises</span><span class="num">'+ts+' sets</span><span>20:00 · 75 min</span></div>'
+      +'<div class="meta"><span class="num">'+P.ex.length+' exercises</span><span class="num">'+ts+' sets</span><span>20:00 · 65 min</span></div>'
       +'<div class="row" style="margin:14px 0"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>'
       +'<button class="cta" data-act="openTrain">'+(ds?"Continue Workout":"Start Workout")+'<span class="arr">'+IC.arrow+'</span></button></div>';
 
@@ -896,7 +938,7 @@ function renderTrain(){
     const prev=w>1?plan(w-1)[trainView].ex.map(e=>e.id):[];
     const ts=totalSets(P), ds=live?doneSets(k):0, tone=P.tone;
     body+='<div class="hero d-'+tone+'"><div class="art">'+IC[iconFor(P.ex[0].id)]+'</div><div class="eyebrow">'+(live?"Today":weekOffset?"Next week":"Preview")+'</div><h2>'+esc(P.name)+'</h2><div class="muted" style="margin-top:2px;max-width:80%">'+esc(P.focus)+'</div>'
-      +'<div class="meta"><span>'+P.ex.length+' exercises</span><span>'+ts+' sets</span><span>75 min</span></div>'
+      +'<div class="meta"><span>'+P.ex.length+' exercises</span><span>'+ts+' sets</span><span>65 min</span></div>'
       +(live?'<div class="row" style="margin-top:14px"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>':'')
       +'<p class="small muted" style="margin:12px 0 0">Warm up 5 min, then 2 light sets of the first lift. Leave 1 to 2 reps in the tank.</p></div>';
     if(isDeload(w)) body+='<div class="banner">Deload week. Use about 60% of normal weight and stop well short of failure.</div>';
@@ -914,7 +956,7 @@ function renderTrain(){
 function exCard(e,live,tone,isNew,deload){
   const st=live?sessionToday(e.id):null; const done=st?st.s.filter(Boolean).length:0; const open=openEx.has(e.id);
   const complete=done>=e.sets;
-  const tags=(e.main?'<span class="tag main">Main</span>':'')+(isNew?'<span class="tag new">New</span>':'');
+  const tags=(e.main?'<span class="tag main">Main</span>':'')+(e.swapped?'<span class="tag swp">Swapped</span>':isNew?'<span class="tag new">New</span>':'');
   let html='<div class="ex'+(open?' open':'')+'" id="ex-'+e.id+'"><button class="exrow" data-act="toggleEx" data-id="'+e.id+'" aria-expanded="'+open+'">'
     +'<span class="thumb" style="--c:var('+TONE[tone][0]+');--s:var('+TONE[tone][1]+')">'+IC[iconFor(e.id)]+(complete?'<span class="ok">'+IC.check+'</span>':'')+'</span>'
     +'<span style="min-width:0"><h3>'+esc(e.n)+tags+'</h3><div class="sub num">'+e.sets+' sets × '+esc(e.reps)+' reps · '+fmtRest(e.rest)+(live&&done?' · '+done+' done':'')+'</div></span>'
@@ -928,7 +970,8 @@ function exCard(e,live,tone,isNew,deload){
         +'<label><input id="r-'+e.id+'-'+i+'" inputmode="numeric" aria-label="Reps set '+(i+1)+'" placeholder="'+(rr?rr.hi:parseInt(e.reps))+'" value="'+(s?s[1]:"")+'"'+(live?"":" disabled")+'><span>reps</span></label>'
         +'<button class="ck" aria-label="'+(s?"Undo set ":"Done set ")+(i+1)+'" data-act="set" data-id="'+e.id+'" data-i="'+i+'"'+(live?"":" disabled")+'>'+IC.check+'</button></div>';
     }
-    html+='<div class="exbody"><button class="howbtn" data-act="how" data-id="'+e.id+'"><span class="pi">'+IC.play+'</span><span>How to do it<small>Steps, mistakes to avoid, video</small></span></button><div class="cue">'+esc(e.cue)+'</div><div class="hint '+h.cls+'">'+esc(h.t)+'</div><div class="sets">'+rows+'</div></div>';
+    html+='<div class="exbody"><div class="exbtns"><button class="howbtn" data-act="how" data-id="'+e.id+'"><span class="pi">'+IC.play+'</span><span>How to do it<small>Steps and video</small></span></button>'
+      +'<button class="howbtn" data-act="swap1" data-id="'+e.id+'"><span class="pi swi" style="background:var(--teal)">'+IC.swap+'</span><span>Swap<small>'+(e.swapped?'Swapped in':'Same muscle')+'</small></span></button></div><div class="cue">'+esc(e.cue)+'</div><div class="hint '+h.cls+'">'+esc(h.t)+'</div><div class="sets">'+rows+'</div></div>';
   }
   return html+'</div>';
 }
@@ -1021,7 +1064,7 @@ function renderProgress(){
       +(hist.length?areaChart(hist.map(h=>h.v),hist.map((h,i)=>i===0||i===hist.length-1?f(h.d):""),"--teal",null,"kg",true)+'<div class="row between"><span class="small muted">Best set</span><b class="num">'+fmtW(best.v)+' kg × '+best.r+'</b></div><div class="small muted">'+hist.length+(hist.length===1?' session':' sessions')+'. The line shows your heaviest set each time.</div>'
         :'<div class="empty">No sets logged for this lift yet. Tick off sets in Workouts and your chart shows up here.</div>')
     +'</div>'
-    +'<div class="glass"><div class="ctitle">How Your Plan Changes</div><p class="small muted" style="margin:8px 0 0">Fresh accessory moves every Monday for new angles. Main lifts stay for 4 weeks so you can keep adding weight. Hit the top rep on every set, then go up a little. Every 8th week is a lighter deload week.</p></div>'
+    +'<div class="glass"><div class="ctitle">How Your Plan Changes</div><p class="small muted" style="margin:8px 0 0">Fresh accessory moves every Monday for new angles. Main lifts stay for 4 weeks so you can keep adding weight. Hit the top rep on every set, then go up a little. Every 8th week is a lighter deload week. Machine busy or a move feels wrong? Tap Swap on any exercise to pick another one for the same muscle.</p></div>'
     +(inFrame?'':'<div class="glass stack" id="cloudCard"><div class="row between"><div class="ctitle">Cloud Backup</div><span class="tag new" style="margin:0">Auto</span></div>'
       +'<div class="small" id="cloudState" style="font-weight:500;color:var(--teal-d)"></div>'
       +'<p class="small muted" style="margin:0">Every change backs up to the cloud by itself. To restore on a new phone, you need this sync code. Keep it in your Notes or password manager.</p>'
@@ -1110,7 +1153,7 @@ async function cloudPush(keepalive){
   finally{cloudBusy=false;cloudStatus();}
 }
 function mergeData(local,remote){
-  const out={days:Object.assign({},remote.days||{},local.days||{}),lifts:{},body:{w:mergeW((remote.body&&remote.body.w)||[],(local.body&&local.body.w)||[])}};
+  const out={days:Object.assign({},remote.days||{},local.days||{}),swaps:Object.assign({},remote.swaps||{},local.swaps||{}),lifts:{},body:{w:mergeW((remote.body&&remote.body.w)||[],(local.body&&local.body.w)||[])}};
   const ids=new Set(Object.keys(remote.lifts||{}).concat(Object.keys(local.lifts||{})));
   ids.forEach(id=>{const m={};((remote.lifts||{})[id]||[]).forEach(s=>m[s.d]=s);((local.lifts||{})[id]||[]).forEach(s=>m[s.d]=s);out.lifts[id]=Object.values(m).sort((a,b)=>a.d<b.d?-1:1).slice(-24);});
   return out;
@@ -1200,6 +1243,8 @@ document.addEventListener("click",ev=>{
   else if(a==="how"){openHow(b.dataset.id,b);}
   else if(a==="foods"){openFoods(b);}
   else if(a==="supps"){openSupps(b);}
+  else if(a==="swap1"){openSwap(b.dataset.id,b);}
+  else if(a==="doSwap"){doSwap(b.dataset.id);}
   else if(a==="fcat"){fCat=b.dataset.c;document.querySelectorAll('[data-act="fcat"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.c===fCat));renderFoods();}
   else if(a==="fsort"){fSort=b.dataset.s;document.querySelectorAll('[data-act="fsort"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===fSort));renderFoods();}
   else if(a==="addFood"){const f=PFOODS[+b.dataset.i];day(k).p.push([f[3],f[1]+" ("+f[2]+")"]);save("days");
@@ -1293,6 +1338,37 @@ function renderFoods(){
     :'<div class="empty">No foods match that search.</div>';
 }
 document.addEventListener("input",e=>{if(e.target.id==="fSearch"){fQ=e.target.value;renderFoods();}});
+
+/* ===== Swap sheet ===== */
+let swapCtx=null;
+function openSwap(id,from){
+  const c=viewCtx(); if(!c) return; const e=c.P.ex.find(x=>x.id===id); if(!e) return;
+  const dk=trainView||progFor(todayKey());
+  const grps=[...new Set(groupsOf(e.orig).concat(groupsOf(e.id)))];
+  const used=c.P.ex.filter(x=>x.id!==e.id).map(x=>x.id);
+  let opts=[...new Set(grps.flatMap(g=>GROUPS[g]))].filter(x=>x!==e.id&&!used.includes(x)&&LIB[x]);
+  if(e.swapped){opts=[e.orig].concat(opts.filter(x=>x!==e.orig));}
+  swapCtx={w:c.w,dk,si:e.si,main:e.main,orig:e.orig,cur:e.id};
+  const st=c.live?sessionToday(e.id):null; const doneN=st?st.s.filter(Boolean).length:0;
+  const row=(x,cur)=>{const L=LIB[x],H=HOWTO[x]||["","",""];const last=lastTopW(x);
+    return '<div class="srow'+(cur?' cur':'')+'"><span class="thumb" style="--c:var(--teal);--s:var(--teal-s)">'+IC[iconFor(x)]+'</span><span style="min-width:0"><div class="fn">'+esc(L[0])+(x===e.orig&&!cur?'<span class="tag new">Plan pick</span>':'')+'</div><div class="fs">'+esc(H[0])+(last?' · last '+last+' kg':'')+'</div></span>'
+      +(cur?'<span class="small" style="font-weight:600;color:var(--teal-d)">Current</span>':'<span class="row" style="gap:6px"><button class="iconbtn" style="width:34px;height:34px;box-shadow:none" data-act="how" data-id="'+x+'" aria-label="How to do '+esc(L[0])+'">'+IC.play.replace('<svg','<svg style="width:12px;height:12px;margin-left:2px"')+'</button><button class="usebtn" data-act="doSwap" data-id="'+x+'">Use</button></span>')+'</div>';};
+  openSheet('<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
+    +'<div><div class="small muted">Swap exercise</div><h2 id="howTitle">'+esc(e.n)+'</h2></div>'
+    +'<div class="mus">'+grps.map(g=>'<span>'+esc(g)+'</span>').join("")+'</div>'
+    +'<p class="small muted" style="margin:0">Pick another move for the same muscle. Sets, reps and rest stay the same. '+(e.main?'This is a main lift, so the swap lasts the whole 4 week block.':'The swap lasts for this week. Next Monday you get a fresh pick.')+'</p>'
+    +(doneN?'<div class="banner">You already logged '+doneN+' set'+(doneN>1?'s':'')+' of this today. They stay saved in your history.</div>':'')
+    +'<div class="flist">'+row(e.id,true)+opts.map(x=>row(x,false)).join("")+'</div>'
+    +(opts.length?'':'<div class="empty">No other moves for this muscle are free today.</div>'),from);
+}
+function doSwap(newId){
+  const c=swapCtx; if(!c) return; if(!S.swaps) S.swaps={};
+  S.swaps[swapKey(c.w,c.dk,c.si,c.main)]=(newId===c.orig?null:newId);
+  save("swaps");
+  openEx.delete(c.cur); openEx.add(newId);
+  swapCtx=null; closeHow(); renderTrain();
+  const card=document.getElementById("ex-"+newId); if(card) card.scrollIntoView({behavior:"smooth",block:"center"});
+}
 
 function openSupps(from){
   openSheet('<button class="iconbtn close" data-act="howClose" aria-label="Close">'+IC.close+'</button>'
