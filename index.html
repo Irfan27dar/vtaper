@@ -268,6 +268,28 @@ a.cta{text-decoration:none}
 .frow .fp span{font-size:11px;color:var(--muted)}
 .lean{display:inline-block;font-size:10px;font-weight:600;background:var(--teal-s);color:var(--teal-d);border-radius:99px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 
+/* warm up */
+.warm{padding:0;overflow:hidden}
+.warmh{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;text-align:left;padding:14px 16px}
+.warmh .wi{width:44px;height:44px;border-radius:14px;background:var(--amber-s);color:var(--amber);display:grid;place-items:center;flex:none}
+.warmh .wi svg{width:22px;height:22px}
+.warm.open .warmh .chev{transform:rotate(90deg)}
+.wlist{display:flex;flex-direction:column;gap:8px;padding:0 14px 14px}
+.witem{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,.8);border:1px solid var(--stroke);border-radius:16px;padding:10px 12px}
+.witem.on{opacity:.6}
+.witem.on .wn{text-decoration:line-through}
+.wck{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(27,42,40,.18);background:var(--white);display:grid;place-items:center;color:transparent;flex:none;margin-top:1px}
+.wck svg{width:15px;height:15px}
+.wck[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--white)}
+.wck:disabled{opacity:.5}
+.wn{display:block;font-weight:600;font-size:13.5px}
+.wa{display:block;font-size:12px;font-weight:600;color:#a06a16}
+.wc{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.ramp{display:flex;flex-direction:column;gap:3px;margin-top:6px;font-size:12.5px}
+.ramp b{font-weight:600}
+.wv{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;flex:none;margin-top:1px}
+.wv svg{width:11px;height:11px;margin-left:2px}
+
 /* swap */
 .exbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .howbtn .pi.swi svg{margin-left:0;width:15px;height:15px}
@@ -743,6 +765,7 @@ const IC = {
   cable:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M18 3v6M6 9l5 8M18 9l-5 8"/><circle cx="12" cy="19" r="2"/></svg>',
   body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M4 8h16M12 8v6M8.5 21l3.5-7 3.5 7"/></svg>',
   machine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="6" height="18" rx="1.5"/><path d="M10 8h8M10 14h6M18 6v4"/></svg>',
+  flame:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.6 2 3 0-3 .2-5.5.5-8z"/></svg>',
   swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -940,8 +963,9 @@ function renderTrain(){
     body+='<div class="hero d-'+tone+'"><div class="art">'+IC[iconFor(P.ex[0].id)]+'</div><div class="eyebrow">'+(live?"Today":weekOffset?"Next week":"Preview")+'</div><h2>'+esc(P.name)+'</h2><div class="muted" style="margin-top:2px;max-width:80%">'+esc(P.focus)+'</div>'
       +'<div class="meta"><span>'+P.ex.length+' exercises</span><span>'+ts+' sets</span><span>65 min</span></div>'
       +(live?'<div class="row" style="margin-top:14px"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>':'')
-      +'<p class="small muted" style="margin:12px 0 0">Warm up 5 min, then 2 light sets of the first lift. Leave 1 to 2 reps in the tank.</p></div>';
+      +'<p class="small muted" style="margin:12px 0 0">Start with the warm up below. Leave 1 to 2 reps in the tank on every set.</p></div>';
     if(isDeload(w)) body+='<div class="banner">Deload week. Use about 60% of normal weight and stop well short of failure.</div>';
+    body+=warmCard(P,live,isDeload(w));
     if(!live){
       const dayNames=Object.keys(WEEK).filter(i=>WEEK[i]===trainView).map(i=>DAYFULL[i]).join(", ");
       body+='<div class="glass row between wrap"><div class="small muted" style="flex:1;min-width:160px">'+(weekOffset?'Preview of next '+dayNames+'. New moves have a green tag.':'This is '+dayNames+'\'s plan. Logging opens on that day.')+'</div>'+(weekOffset?'':'<button class="btn" data-act="swap" data-p="'+trainView+'">Do it today</button>')+'</div>';
@@ -951,6 +975,65 @@ function renderTrain(){
     if(live && todayProg!==WEEK[now().getDay()]) body+='<div class="glass row between wrap"><div class="small muted">You swapped today\'s workout.</div><button class="btn ghost" data-act="unswap">Back to normal plan</button></div>';
   }
   $("#v-train").innerHTML=body;
+}
+
+/* ===== Warm up ===== */
+/* [name, amount, cue] per day type. Cardio first, then moves for that day's muscles. */
+const WARM_START=["Easy cardio","5 min","Bike, rower or incline walk. Breathe a bit harder, but you can still talk."];
+const WARMUPS = {
+  push:[
+    ["Arm circles","10 forward, 10 back","Small circles first, then big ones. Loosens the shoulders."],
+    ["Band pull-aparts","15 reps","Arms straight, pull the band to your chest. Wakes up the upper back."],
+    ["Band shoulder dislocates","10 reps","Wide grip on a band or stick. Move it over your head and behind you, slow."],
+    ["Scap push-ups","10 reps","Push-up position, arms straight. Let your chest sink, then push it away."],
+    ["Easy push-ups","10 reps","Slow and smooth, a few reps short of tired."]
+  ],
+  pull:[
+    ["Arm circles","10 forward, 10 back","Small circles first, then big ones."],
+    ["Band pull-aparts","15 reps","Arms straight, squeeze your shoulder blades."],
+    ["Dead hang","30 seconds","Hang from the pull-up bar, relaxed. Opens up the lats and shoulders."],
+    ["Scap pull-ups","8 reps","Hang with straight arms. Pull your shoulders down without bending the elbows."],
+    ["Cat cow","8 slow reps","On hands and knees. Round your back up, then let it sag. Warms the spine."]
+  ],
+  legs:[
+    ["Leg swings","10 each leg, front and side","Hold a wall. Swing loose and easy, bigger each rep."],
+    ["Bodyweight squats","15 reps","Sit deep, chest up, heels down."],
+    ["Walking lunges","8 each leg","Long steps, back knee close to the floor."],
+    ["Glute bridges","15 reps","Lie on your back, push through your heels, squeeze at the top."],
+    ["Hip circles","10 each way","Hands on hips, big slow circles. Gets the hips ready for squats."]
+  ],
+  vt:[
+    ["Arm circles","10 forward, 10 back","Small circles first, then big ones."],
+    ["Band pull-aparts","15 reps","Arms straight, squeeze your shoulder blades."],
+    ["Band external rotations","12 each arm","Elbow at your side, rotate the hand out. Protects the rotator cuff."],
+    ["Light lateral raises","15 reps","Very light dumbbells. Just get blood into the side delts."],
+    ["Dead bug","10 each side","On your back, lower opposite arm and leg slowly. Wakes up the core."]
+  ]
+};
+let wuOpen=null;
+function rampFor(e,deload){
+  const top=parseFloat(lastTopW(e.id)); const r=x=>fmtW(Math.max(0,Math.round(x/2.5)*2.5));
+  if(e.inc===0) return [["Easy set","1 × 8 at bodyweight, slow"]];
+  if(!top) return [["Very light","10 reps"],["About half your work weight","6 reps"],["About 3/4 of your work weight","3 reps"]];
+  const t=deload?top*0.6:top;
+  return deload?[["Very light","10 reps"],[r(t*0.6)+" kg","6 reps"]]:[["Very light or empty bar","10 reps"],[r(t*0.5)+" kg","8 reps"],[r(t*0.7)+" kg","5 reps"],[r(t*0.85)+" kg","2 reps"]];
+}
+function warmCard(P,live,deload){
+  const k=todayKey(); const list=[WARM_START].concat(WARMUPS[P.tone]||WARMUPS.push); const first=P.ex[0];
+  const items=list.concat([["Ramp up sets: "+first.n,"Light sets before your first working set",""]]);
+  const done=live?(peekDay(k).wu||[]):[]; const n=items.filter((x,i)=>done.includes(i)).length; const all=n===items.length;
+  const open=wuOpen!==null?wuOpen:!(live&&(all||doneSets(k)>0));
+  const ramp=rampFor(first,deload);
+  let html='<div class="glass warm'+(open?' open':'')+'"><button class="warmh" data-act="wuToggle" aria-expanded="'+open+'"><span class="wi">'+IC.flame+'</span><span style="min-width:0;flex:1"><span class="ctitle" style="display:block">Warm Up</span><span class="small muted">About 10 min · '+(live?(all?'All done. Time to lift':n+' of '+items.length+' done'):items.length+' steps')+'</span></span>'
+    +(live&&all?'<span class="tag new" style="margin:0">Done</span>':'')+'<span class="chev">'+IC.chev+'</span></button>';
+  if(open){
+    html+='<div class="wlist">'+items.map((it,i)=>{const on=done.includes(i);const isRamp=i===items.length-1;
+      return '<div class="witem'+(on?' on':'')+'"><button class="wck" data-act="wu" data-i="'+i+'" aria-pressed="'+on+'" aria-label="'+(on?"Undo ":"Done: ")+esc(it[0])+'"'+(live?'':' disabled')+'>'+IC.check+'</button>'
+        +'<span style="min-width:0;flex:1"><span class="wn">'+esc(it[0])+'</span><span class="wa num">'+esc(it[1])+'</span>'
+        +(isRamp?'<span class="ramp">'+ramp.map(r=>'<span><b class="num">'+esc(r[0])+'</b> × '+esc(r[1].replace(/^1 × /,""))+'</span>').join("")+'</span><span class="wc">Rest about 1 min between these. They should feel easy.</span>':'<span class="wc">'+esc(it[2])+'</span>')+'</span>'
+        +(isRamp||i===0?'':'<a class="wv" href="https://www.youtube.com/results?search_query='+encodeURIComponent(it[0]+" warm up exercise")+'" target="_blank" rel="noopener" aria-label="Watch how to do '+esc(it[0])+'">'+IC.play+'</a>')+'</div>';}).join("")+'</div>';
+  }
+  return html+'</div>';
 }
 
 function exCard(e,live,tone,isNew,deload){
@@ -1233,8 +1316,8 @@ document.addEventListener("click",ev=>{
   else if(a==="rmP"){day(k).p.splice(+b.dataset.i,1);save("days");rerender();}
   else if(a==="goFuel"){setTab("fuel");}
   else if(a==="openTrain"){trainView=null;weekOffset=0;openEx.clear();setTab("train");}
-  else if(a==="trainDay"){trainView=b.dataset.p;openEx.clear();renderTrain();}
-  else if(a==="wk"){weekOffset=+b.dataset.o;openEx.clear();renderTrain();}
+  else if(a==="trainDay"){trainView=b.dataset.p;openEx.clear();wuOpen=null;renderTrain();}
+  else if(a==="wk"){weekOffset=+b.dataset.o;openEx.clear();wuOpen=null;renderTrain();}
   else if(a==="toggleEx"){const id=b.dataset.id;if(openEx.has(id))openEx.delete(id);else openEx.add(id);rebuildEx(id);}
   else if(a==="range"){statRange=+b.dataset.n;lsUi("range",statRange);renderProgress();}
   else if(a==="swap"){day(k).prog=b.dataset.p;trainView=b.dataset.p;weekOffset=0;openEx.clear();save("days");renderAll();}
@@ -1244,6 +1327,9 @@ document.addEventListener("click",ev=>{
   else if(a==="foods"){openFoods(b);}
   else if(a==="supps"){openSupps(b);}
   else if(a==="swap1"){openSwap(b.dataset.id,b);}
+  else if(a==="wuToggle"){const o=b.getAttribute("aria-expanded")==="true";wuOpen=!o;renderTrain();}
+  else if(a==="wu"){const d=day(k);if(!d.wu)d.wu=[];const i=+b.dataset.i;const j=d.wu.indexOf(i);if(j>=0)d.wu.splice(j,1);else d.wu.push(i);
+    save("days");const total=document.querySelectorAll('[data-act="wu"]').length;if(d.wu.length>=total)wuOpen=false;renderTrain();}
   else if(a==="doSwap"){doSwap(b.dataset.id);}
   else if(a==="fcat"){fCat=b.dataset.c;document.querySelectorAll('[data-act="fcat"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.c===fCat));renderFoods();}
   else if(a==="fsort"){fSort=b.dataset.s;document.querySelectorAll('[data-act="fsort"]').forEach(x=>x.setAttribute("aria-pressed",x.dataset.s===fSort));renderFoods();}
