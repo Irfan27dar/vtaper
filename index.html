@@ -475,6 +475,11 @@ const LIB = {
   hlr:["Hanging Leg Raise",0,"Curl your pelvis up. No swinging. Log 0 for weight."],
   cable_crunch:["Kneeling Cable Crunch",2.5,"Crunch ribs to hips. Hips stay still."],
   ab_wheel:["Ab Wheel Rollout",0,"Roll out slow, keep your back flat. Log 0 for weight."],
+  db_shrug:["Dumbbell Shrug",2,"Lift your shoulders straight up to your ears. Pause 1 second at the top."],
+  bb_shrug:["Barbell Shrug",5,"Straight up and down. No rolling your shoulders."],
+  smith_shrug:["Smith Machine Shrug",5,"Stand tall, bar against your thighs. Shrug straight up and hold."],
+  cable_shrug:["Cable Shrug",2.5,"Constant pull from the cable. Squeeze hard at the top."],
+  cable_upright:["Wide Grip Cable Upright Row",2.5,"Wide grip. Pull to lower chest only, elbows lead. Hits traps and side delts."],
   captains_chair:["Captain's Chair Knee Raise",0,"Back on the pad. Lift knees to chest and curl your hips up. Log 0 for weight."],
   reverse_crunch:["Reverse Crunch",0,"Lift your hips off the floor, do not just swing your legs. Log 0 for weight."],
   lying_leg_raise:["Lying Leg Raise",0,"Lower back pressed to the floor the whole time. Log 0 for weight."],
@@ -585,6 +590,11 @@ const HOWTO = {
   hlr:["Lower abs, hip flexors","Hang from a pull-up bar with straight arms.|Brace your core so you do not swing.|Lift your legs and curl your pelvis up.|Lower slowly.","Swinging|Only lifting legs without curling the pelvis"],
   cable_crunch:["Abs","Kneel facing a high cable with a rope behind your head.|Hips stay still.|Crunch your ribs down toward your hips.|Return slowly.","Sitting back on your heels to pull|Using your arms"],
   ab_wheel:["Abs, core","Kneel on a mat holding the wheel under your shoulders.|Brace your core and tuck your pelvis.|Roll forward slowly as far as you can with a flat back.|Pull back to the start.","Lower back sagging|Going further than you can control"],
+  db_shrug:["Upper traps","Stand tall with a heavy dumbbell in each hand at your sides.|Keep your arms straight and relaxed.|Shrug your shoulders straight up toward your ears.|Pause for 1 second, then lower slowly.","Rolling your shoulders in circles|Bending your elbows to help lift"],
+  bb_shrug:["Upper traps","Hold a barbell at your thighs with a shoulder width grip.|Stand tall, arms straight.|Shrug your shoulders straight up as high as you can.|Pause, then lower slowly for a full stretch.","Using a weight so heavy the range gets tiny|Pushing your head forward"],
+  smith_shrug:["Upper traps","Set the Smith bar at thigh height and unhook it.|Stand tall with arms straight.|Shrug straight up and hold for 1 second.|Lower slowly, then re-hook when done.","Leaning back|Bouncing the reps"],
+  cable_shrug:["Upper traps","Attach a straight bar to a low cable. Stand close and hold it at your thighs.|Arms straight, chest up.|Shrug your shoulders up toward your ears.|Squeeze, then lower slowly.","Bending the elbows|Short, fast reps"],
+  cable_upright:["Traps, side delts","Attach a straight bar to a low cable. Grip it wider than your shoulders.|Stand tall with the bar at your thighs.|Pull the bar up to your lower chest, elbows leading the way.|Lower slowly.","Pulling up to your chin, which can pinch the shoulders|Narrow grip"],
   captains_chair:["Lower abs, hip flexors","Stand in the captain's chair with forearms on the pads and back on the cushion.|Let your legs hang straight.|Lift your knees to your chest and curl your hips up a little.|Lower slowly without swinging.","Swinging the legs|Only lifting the knees without curling the hips"],
   reverse_crunch:["Lower abs","Lie on your back, knees bent at 90° and lifted, hands by your sides.|Brace your abs.|Curl your hips up off the floor toward your chest.|Lower slowly until your hips touch down.","Throwing the legs with momentum|Arching your lower back"],
   lying_leg_raise:["Lower abs","Lie flat with legs straight and hands under your hips.|Press your lower back into the floor.|Lift your legs up to vertical.|Lower slowly, stop just before they touch the floor.","Lower back lifting off the floor|Dropping the legs fast"],
@@ -613,13 +623,13 @@ const DAYS = {
     [["oh_cable_tri","rope_pd","db_oh_tri","bar_pd","skull"],3,"10-12",60,"w"]],core:[
     [["hlr","captains_chair","reverse_crunch"],3],
     [["plank","hollow_hold","ab_wheel"],3]]},
-  pull_a:{name:"Pull A",focus:"Back width (lats)",tone:"pull",slots:[
+  pull_a:{name:"Pull A",focus:"Back width (lats) and traps",tone:"pull",slots:[
     [["pullup","neutral_pullup","heavy_pd"],4,"6-10",150,"b"],
     [["wide_pd","sa_pd","machine_pd","neutral_pd"],3,"10-12",90,"w"],
     [["tbar_row","cable_row","machine_row","cs_db_row"],3,"8-10",120,"w"],
     [["face_pull","reverse_pec","rear_cable_fly"],3,"15",60,"w"],
-    [["ez_curl","bb_curl","alt_db_curl"],3,"8-10",75,"w"],
-    [["incline_db_curl","bayesian","preacher"],3,"10-12",60,"w"]],core:[
+    [["ez_curl","bb_curl","alt_db_curl","incline_db_curl","bayesian"],3,"8-12",75,"w"],
+    [["db_shrug","bb_shrug","smith_shrug","cable_shrug"],3,"10-15",60,"w"]],core:[
     [["woodchop","pallof","russian_twist"],3],
     [["side_plank","suitcase_carry","vacuum"],3]]},
   legs:{name:"Legs",focus:"Full legs",tone:"legs",slots:[
@@ -631,13 +641,13 @@ const DAYS = {
     [["leg_ext"],3,"12-15",60,"w"]],core:[
     [["cable_crunch","decline_crunch"],3],
     [["pallof","dead_bug","woodchop"],3]]},
-  push_b:{name:"Push B",focus:"Shoulders and triceps",tone:"push",slots:[
+  push_b:{name:"Push B",focus:"Shoulders, traps and triceps",tone:"push",slots:[
     [["machine_ohp","standing_ohp","seated_db_ohp"],4,"6-8",150,"b"],
     [["incline_db","incline_machine","incline_smith"],3,"8-10",120,"w"],
     [["db_lat","cable_y","seated_db_lat","machine_lat"],4,"12-20",60,"w"],
     [["reverse_pec","bent_rear_raise","face_pull"],3,"15",60,"w"],
-    [["dips","cgbp","machine_dip"],3,"8-12",90,"w"],
-    [["skull","oh_cable_tri","sa_cable_pd"],3,"10-12",60,"w"]],core:[
+    [["dips","cgbp","machine_dip","skull","oh_cable_tri"],3,"8-12",90,"w"],
+    [["cable_upright","db_shrug","cable_shrug","smith_shrug"],3,"12-15",60,"w"]],core:[
     [["reverse_crunch","lying_leg_raise","hlr"],3],
     [["side_plank","bicycle_crunch","russian_twist"],3]]},
   pull_b:{name:"Pull B",focus:"Back thickness and arms",tone:"pull",slots:[
@@ -712,6 +722,7 @@ const GROUPS = {
   "Chest fly":["low_high_fly","incline_db_fly","pec_deck","mid_cable_fly"],
   "Shoulder press":["seated_db_ohp","machine_ohp","arnold","standing_ohp","landmine_press"],
   "Side delts":["cable_lat","db_lat","machine_lat","leanaway_lat","seated_db_lat","cable_y"],
+  "Traps":["db_shrug","bb_shrug","smith_shrug","cable_shrug","cable_upright"],
   "Rear delts":["face_pull","reverse_pec","rear_cable_fly","bent_rear_raise"],
   "Triceps":["rope_pd","bar_pd","sa_pd_rev","oh_cable_tri","db_oh_tri","skull","sa_cable_pd","dips","cgbp","machine_dip"],
   "Lats":["pullup","neutral_pullup","chinup","heavy_pd","wide_pd","sa_pd","machine_pd","neutral_pd","straight_arm_pd","db_pullover","rope_pullover"],
