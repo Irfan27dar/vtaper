@@ -268,6 +268,11 @@ a.cta{text-decoration:none}
 .frow .fp span{font-size:11px;color:var(--muted)}
 .lean{display:inline-block;font-size:10px;font-weight:600;background:var(--teal-s);color:var(--teal-d);border-radius:99px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 
+/* core finisher */
+.corehead{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.corehead .ci{width:44px;height:44px;border-radius:14px;background:var(--blue-s);color:var(--blue);display:grid;place-items:center;flex:none}
+.corehead .ci svg{width:22px;height:22px}
+
 /* warm up */
 .warm{padding:0;overflow:hidden}
 .warmh{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;text-align:left;padding:14px 16px}
@@ -469,8 +474,24 @@ const LIB = {
   lp_calf:["Leg Press Calf Press",10,"Balls of your feet on the edge. Big range of motion."],
   hlr:["Hanging Leg Raise",0,"Curl your pelvis up. No swinging. Log 0 for weight."],
   cable_crunch:["Kneeling Cable Crunch",2.5,"Crunch ribs to hips. Hips stay still."],
-  ab_wheel:["Ab Wheel Rollout",0,"Roll out slow, keep your back flat. Log 0 for weight."]
+  ab_wheel:["Ab Wheel Rollout",0,"Roll out slow, keep your back flat. Log 0 for weight."],
+  captains_chair:["Captain's Chair Knee Raise",0,"Back on the pad. Lift knees to chest and curl your hips up. Log 0 for weight."],
+  reverse_crunch:["Reverse Crunch",0,"Lift your hips off the floor, do not just swing your legs. Log 0 for weight."],
+  lying_leg_raise:["Lying Leg Raise",0,"Lower back pressed to the floor the whole time. Log 0 for weight."],
+  decline_crunch:["Weighted Decline Crunch",2.5,"Hold a plate on your chest. Curl up, do not yank your neck."],
+  bicycle_crunch:["Bicycle Crunch",0,"Slow. Elbow toward the opposite knee. Count each side. Log 0 for weight."],
+  plank:["Plank",0,"Squeeze glutes and abs, body in a straight line. Log seconds held, 0 for weight."],
+  hollow_hold:["Hollow Body Hold",0,"Lower back flat on the floor, arms and legs long. Log seconds held."],
+  side_plank:["Side Plank",0,"Hips high, body straight. Hold each side. Log seconds per side."],
+  dead_bug:["Dead Bug",0,"Lower back stays down. Slow opposite arm and leg. Count each side."],
+  pallof:["Pallof Press",1.25,"Stand side on to a cable. Press the handle out and do not let it twist you. Each side."],
+  woodchop:["Cable Woodchop",1.25,"Turn through your hips and torso, arms long. High to low. Each side."],
+  russian_twist:["Russian Twist",1,"Lean back, feet up if you can. Turn side to side with a plate. Count each side."],
+  suitcase_carry:["Suitcase Carry",2,"Heavy dumbbell in one hand. Walk tall without leaning. Log seconds per side."],
+  vacuum:["Stomach Vacuum",0,"Breathe all the way out, then pull your belly button in hard toward your spine. Log seconds held."]
 };
+/* Core reps: time holds end in s */
+const CREPS = {plank:"45s",hollow_hold:"30s",side_plank:"30s",vacuum:"20s",suitcase_carry:"40s",dead_bug:"10",pallof:"12",woodchop:"12",russian_twist:"20",bicycle_crunch:"20",ab_wheel:"8-12",hlr:"10-15",captains_chair:"12-15",reverse_crunch:"12-15",lying_leg_raise:"12-15",cable_crunch:"12-15",decline_crunch:"12-15"};
 
 /* ===== How to do each exercise: id -> [muscles, steps (|), mistakes to avoid (|)] ===== */
 const HOWTO = {
@@ -563,7 +584,21 @@ const HOWTO = {
   lp_calf:["Calves","Sit in the leg press. Put the balls of your feet on the bottom edge.|Legs straight with soft knees.|Push the platform with your toes.|Let heels come back for a stretch.","Bending your knees|Feet slipping off"],
   hlr:["Lower abs, hip flexors","Hang from a pull-up bar with straight arms.|Brace your core so you do not swing.|Lift your legs and curl your pelvis up.|Lower slowly.","Swinging|Only lifting legs without curling the pelvis"],
   cable_crunch:["Abs","Kneel facing a high cable with a rope behind your head.|Hips stay still.|Crunch your ribs down toward your hips.|Return slowly.","Sitting back on your heels to pull|Using your arms"],
-  ab_wheel:["Abs, core","Kneel on a mat holding the wheel under your shoulders.|Brace your core and tuck your pelvis.|Roll forward slowly as far as you can with a flat back.|Pull back to the start.","Lower back sagging|Going further than you can control"]
+  ab_wheel:["Abs, core","Kneel on a mat holding the wheel under your shoulders.|Brace your core and tuck your pelvis.|Roll forward slowly as far as you can with a flat back.|Pull back to the start.","Lower back sagging|Going further than you can control"],
+  captains_chair:["Lower abs, hip flexors","Stand in the captain's chair with forearms on the pads and back on the cushion.|Let your legs hang straight.|Lift your knees to your chest and curl your hips up a little.|Lower slowly without swinging.","Swinging the legs|Only lifting the knees without curling the hips"],
+  reverse_crunch:["Lower abs","Lie on your back, knees bent at 90° and lifted, hands by your sides.|Brace your abs.|Curl your hips up off the floor toward your chest.|Lower slowly until your hips touch down.","Throwing the legs with momentum|Arching your lower back"],
+  lying_leg_raise:["Lower abs","Lie flat with legs straight and hands under your hips.|Press your lower back into the floor.|Lift your legs up to vertical.|Lower slowly, stop just before they touch the floor.","Lower back lifting off the floor|Dropping the legs fast"],
+  decline_crunch:["Upper abs","Hook your feet on a decline bench.|Hold a plate on your chest.|Curl your ribs up toward your hips.|Lower slowly to just short of flat.","Pulling on your neck|Using momentum to sit all the way up"],
+  bicycle_crunch:["Abs, obliques","Lie on your back with hands lightly behind your head.|Lift your shoulders and bring one knee in.|Turn so the opposite elbow moves toward that knee.|Switch sides slowly like pedaling a bike.","Going too fast|Pulling your head with your hands"],
+  plank:["Deep core, abs","Forearms under your shoulders, legs straight behind you.|Squeeze your glutes and abs.|Keep your body in a straight line from head to heels.|Hold and breathe slowly.","Hips sagging toward the floor|Hips piked up high"],
+  hollow_hold:["Deep core, abs","Lie on your back with arms overhead.|Press your lower back flat into the floor.|Lift your shoulders and legs a few inches off the floor.|Hold with your body like a shallow banana.","Lower back lifting|Holding your breath"],
+  side_plank:["Obliques, deep core","Lie on your side with your elbow under your shoulder.|Stack your feet.|Lift your hips so your body makes a straight line.|Hold, then switch sides.","Hips dropping|Rolling forward or back"],
+  dead_bug:["Deep core","Lie on your back, arms straight up, knees bent at 90° in the air.|Press your lower back into the floor.|Slowly lower your right arm and left leg toward the floor.|Return and switch sides.","Lower back arching off the floor|Moving fast"],
+  pallof:["Obliques, deep core","Set a cable at chest height. Stand side on and hold the handle at your chest.|Step out so the cable pulls you.|Press the handle straight out in front of you.|Hold 2 seconds without twisting, then bring it back. Switch sides.","Letting your body rotate|Standing too close so there is no pull"],
+  woodchop:["Obliques","Set a cable high. Stand side on and hold the handle with both hands.|Arms long, turn through your hips and torso.|Pull the handle down and across to your opposite hip.|Return slowly. Switch sides.","Only using your arms|Twisting your lower back without turning your hips"],
+  russian_twist:["Obliques","Sit with knees bent and lean back a little. Hold a plate.|Lift your feet if you can.|Turn your chest and the plate to one side.|Turn to the other side. Count each side.","Only moving your arms|Rounding your back a lot"],
+  suitcase_carry:["Obliques, grip, core","Hold a heavy dumbbell in one hand at your side.|Stand tall with shoulders level.|Walk slowly without leaning toward the weight.|Switch hands and walk back.","Leaning to one side|Shrugging the shoulder"],
+  vacuum:["Deep core (transverse abs)","Stand tall or kneel on all fours.|Breathe all the way out.|Pull your belly button in toward your spine as hard as you can.|Hold, breathing lightly, then relax.","Holding your breath in|Doing it right after a big meal"]
 };
 
 /* ===== Weekly templates. Each slot: [pool, sets, reps, rest sec, rotation]
@@ -575,42 +610,54 @@ const DAYS = {
     [["seated_db_ohp","machine_ohp","arnold"],3,"8-10",120,"w"],
     [["cable_lat","db_lat","machine_lat","leanaway_lat"],4,"12-15",60,"w"],
     [["low_high_fly","incline_db_fly","pec_deck"],3,"12-15",60,"w"],
-    [["oh_cable_tri","rope_pd","db_oh_tri","bar_pd","skull"],3,"10-12",60,"w"]]},
+    [["oh_cable_tri","rope_pd","db_oh_tri","bar_pd","skull"],3,"10-12",60,"w"]],core:[
+    [["hlr","captains_chair","reverse_crunch"],3],
+    [["plank","hollow_hold","ab_wheel"],3]]},
   pull_a:{name:"Pull A",focus:"Back width (lats)",tone:"pull",slots:[
     [["pullup","neutral_pullup","heavy_pd"],4,"6-10",150,"b"],
     [["wide_pd","sa_pd","machine_pd","neutral_pd"],3,"10-12",90,"w"],
     [["tbar_row","cable_row","machine_row","cs_db_row"],3,"8-10",120,"w"],
     [["face_pull","reverse_pec","rear_cable_fly"],3,"15",60,"w"],
     [["ez_curl","bb_curl","alt_db_curl"],3,"8-10",75,"w"],
-    [["incline_db_curl","bayesian","preacher"],3,"10-12",60,"w"]]},
-  legs:{name:"Legs",focus:"Full legs and abs",tone:"legs",slots:[
+    [["incline_db_curl","bayesian","preacher"],3,"10-12",60,"w"]],core:[
+    [["woodchop","pallof","russian_twist"],3],
+    [["side_plank","suitcase_carry","vacuum"],3]]},
+  legs:{name:"Legs",focus:"Full legs",tone:"legs",slots:[
     [["squat","hack_squat","smith_squat"],4,"6-8",180,"b"],
     [["rdl","db_rdl","smith_rdl"],3,"8-10",150,"b"],
     [["leg_press","bss","walking_lunge"],3,"10-12",120,"w"],
     [["leg_curl","seated_leg_curl"],3,"10-12",75,"w"],
     [["calf","seated_calf","lp_calf"],4,"10-15",60,"w"],
-    [["hlr","cable_crunch","ab_wheel"],3,"10-15",60,"w"]]},
+    [["leg_ext"],3,"12-15",60,"w"]],core:[
+    [["cable_crunch","decline_crunch"],3],
+    [["pallof","dead_bug","woodchop"],3]]},
   push_b:{name:"Push B",focus:"Shoulders and triceps",tone:"push",slots:[
     [["machine_ohp","standing_ohp","seated_db_ohp"],4,"6-8",150,"b"],
     [["incline_db","incline_machine","incline_smith"],3,"8-10",120,"w"],
     [["db_lat","cable_y","seated_db_lat","machine_lat"],4,"12-20",60,"w"],
     [["reverse_pec","bent_rear_raise","face_pull"],3,"15",60,"w"],
     [["dips","cgbp","machine_dip"],3,"8-12",90,"w"],
-    [["skull","oh_cable_tri","sa_cable_pd"],3,"10-12",60,"w"]]},
+    [["skull","oh_cable_tri","sa_cable_pd"],3,"10-12",60,"w"]],core:[
+    [["reverse_crunch","lying_leg_raise","hlr"],3],
+    [["side_plank","bicycle_crunch","russian_twist"],3]]},
   pull_b:{name:"Pull B",focus:"Back thickness and arms",tone:"pull",slots:[
     [["bb_row","landmine_row","machine_row_heavy"],4,"6-8",150,"b"],
     [["neutral_pd","chinup","wide_pd"],3,"8-10",120,"w"],
     [["sa_db_row","sa_cable_row","meadows"],3,"10-12",90,"w"],
     [["reverse_pec","rear_cable_fly","face_pull"],3,"15",60,"w"],
     [["hammer","rope_hammer","rev_ez_curl"],3,"10-12",60,"w"],
-    [["cable_curl","concentration","spider"],3,"12-15",60,"w"]]},
-  vtaper:{name:"V-Taper",focus:"Delts, arms and core. Easy on legs before match day.",tone:"vt",slots:[
+    [["cable_curl","concentration","spider"],3,"12-15",60,"w"]],core:[
+    [["ab_wheel","plank","hollow_hold"],3],
+    [["vacuum","dead_bug"],3]]},
+  vtaper:{name:"V-Taper",focus:"Delts and arms. Easy on legs before match day.",tone:"vt",slots:[
     [["cable_lat","leanaway_lat","seated_db_lat","cable_y"],4,"12-15",60,"w"],
     [["sa_pd","straight_arm_pd","db_pullover"],3,"12",60,"w"],
     [["face_pull","reverse_pec","rear_cable_fly"],3,"15",60,"w"],
     [["preacher","bayesian","incline_db_curl"],3,"10-12",60,"w"],
     [["rope_pd","oh_cable_tri","sa_cable_pd"],3,"10-12",60,"w"],
-    [["cable_crunch","hlr","ab_wheel"],3,"12-15",60,"w"]]}
+    [["low_high_fly","incline_db_fly","pec_deck"],3,"12-15",60,"w"]],core:[
+    [["captains_chair","cable_crunch","decline_crunch"],3],
+    [["suitcase_carry","side_plank","vacuum"],3]]}
 };
 const TONE = {push:["--coral","--coral-s"],pull:["--teal","--teal-s"],legs:["--amber","--amber-s"],vt:["--blue","--blue-s"],match:["--muted","--teal-s"]};
 const WEEK = {1:"push_a",2:"pull_a",3:"legs",4:"push_b",5:"pull_b",6:"vtaper",0:"match"};
@@ -631,7 +678,13 @@ function planBase(w){
       const id=pool[i]; used.push(id); const L=LIB[id];
       return {id,n:L[0],inc:L[1],cue:L[2],sets:isDeload(w)?Math.max(2,sets-1):sets,reps,rest,main:rot==="b"};
     });
-    out[dk]={name:D.name,focus:D.focus,tone:D.tone,ex};
+    const core=(D.core||[]).map((sl,ci)=>{
+      const [pool,sets]=sl; let i=(w-1+ci)%pool.length, tries=0;
+      while(used.includes(pool[i])&&tries<pool.length){i=(i+1)%pool.length;tries++;}
+      const id=pool[i]; used.push(id); const L=LIB[id];
+      return {id,n:L[0],inc:L[1],cue:L[2],sets:isDeload(w)?2:sets,reps:CREPS[id]||"12",rest:45,main:false,core:true};
+    });
+    out[dk]={name:D.name,focus:D.focus,tone:D.tone,ex,core};
   });
   return planCache[w]=out;
 }
@@ -641,12 +694,14 @@ function plan(w){
   const base=planBase(w), out={}, sw=S.swaps||{};
   Object.keys(base).forEach(dk=>{
     const B=base[dk];
-    const ex=B.ex.map((e,si)=>{
+    const apply=(e,si)=>{
       const sid=sw[swapKey(w,dk,si,e.main)];
-      if(sid&&LIB[sid]&&sid!==e.id){const L=LIB[sid];return Object.assign({},e,{id:sid,n:L[0],inc:L[1],cue:L[2],si,orig:e.id,swapped:true});}
+      const ok=sid&&LIB[sid]&&sid!==e.id&&groupsOf(sid).some(g=>groupsOf(e.id).includes(g));
+      if(ok){const L=LIB[sid];return Object.assign({},e,{id:sid,n:L[0],inc:L[1],cue:L[2],si,orig:e.id,swapped:true},e.core?{reps:CREPS[sid]||e.reps}:{});}
       return Object.assign({},e,{si,orig:e.id});
-    });
-    out[dk]=Object.assign({},B,{ex});
+    };
+    const ex=B.ex.map((e,si)=>apply(e,si)), core=(B.core||[]).map((e,ci)=>apply(e,10+ci));
+    out[dk]=Object.assign({},B,{ex,core,all:ex.concat(core)});
   });
   return out;
 }
@@ -666,7 +721,10 @@ const GROUPS = {
   "Hip hinge":["rdl","db_rdl","smith_rdl"],
   "Hamstring curl":["leg_curl","seated_leg_curl"],
   "Calves":["calf","seated_calf","lp_calf"],
-  "Abs":["hlr","cable_crunch","ab_wheel"]
+  "Lower abs":["hlr","captains_chair","reverse_crunch","lying_leg_raise"],
+  "Upper abs":["cable_crunch","decline_crunch","bicycle_crunch"],
+  "Obliques":["side_plank","woodchop","pallof","russian_twist","suitcase_carry","bicycle_crunch"],
+  "Deep core":["plank","hollow_hold","ab_wheel","dead_bug","vacuum"]
 };
 function groupsOf(id){return Object.keys(GROUPS).filter(g=>GROUPS[g].includes(id));}
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
@@ -765,6 +823,7 @@ const IC = {
   cable:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6M18 3v6M6 9l5 8M18 9l-5 8"/><circle cx="12" cy="19" r="2"/></svg>',
   body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M4 8h16M12 8v6M8.5 21l3.5-7 3.5 7"/></svg>',
   machine:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="6" height="18" rx="1.5"/><path d="M10 8h8M10 14h6M18 6v4"/></svg>',
+  core:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="4"/><path d="M12 3v18M7 9h10M7 15h10"/></svg>',
   flame:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1 2.6 2 3 0-3 .2-5.5.5-8z"/></svg>',
   swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
@@ -778,7 +837,7 @@ const IC = {
   scale:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M9 10a4 4 0 0 1 6 0M12 10l1.5-2"/></svg>'
 };
 function iconFor(id){
-  if(/pullup|chinup|dips|hlr|ab_wheel|walking_lunge|bss/.test(id)) return "body";
+  if(/pullup|chinup|dips|hlr|ab_wheel|walking_lunge|bss|plank|hollow|dead_bug|vacuum|reverse_crunch|lying_leg|bicycle|russian|captains|suitcase|decline_crunch/.test(id)) return "body";
   if(/machine|leg_press|leg_ext|leg_curl|pec_deck|reverse_pec|hack|smith|calf|high_row|tbar/.test(id)) return "machine";
   if(/cable|pd|pulldown|rope|face_pull|crunch|bayesian|fly|_y$|leanaway|straight_arm/.test(id)) return "cable";
   if(/bb|squat|rdl|ez|skull|cgbp|ohp_standing|standing|landmine|meadows|preacher/.test(id)) return "bb";
@@ -855,6 +914,8 @@ function fmtW(w){return (Math.round(w*100)/100).toString();}
 function hintFor(e,deload){
   const last=lastSession(e.id); const rr=repRange(e.reps);
   if(deload){const t=last?Math.max(...last.s.filter(Boolean).map(s=>s[0])):0;return {cls:"",t:"Deload: use about 60% of normal"+(t?", around "+fmtW(Math.round(t*0.6/2.5)*2.5)+" kg":"")+". Easy reps, perfect form."};}
+  if(!last&&/s$/.test(e.reps)) return {cls:"",t:"Hold for "+parseInt(e.reps)+" seconds with perfect form. Stop if your form breaks."};
+  if(!last&&e.inc===0) return {cls:"",t:"Do "+e.reps+" slow, strict reps. Squeeze your abs on every one."};
   if(!last) return {cls:"",t:"New lift for you. Pick a weight you can do for "+e.reps+" reps with 1 to 2 reps left in the tank."};
   const sets=last.s.filter(Boolean); const top=Math.max(...sets.map(s=>s[0]));
   const txt=sets.map(s=>fmtW(s[0])+"×"+s[1]).join(", ");
@@ -868,8 +929,8 @@ function hintFor(e,deload){
 }
 function lastTopW(id){const l=lastSession(id);if(!l)return "";const s=l.s.filter(Boolean);return fmtW(Math.max(...s.map(x=>x[0])));}
 function setsOn(k){return Object.values(S.lifts).reduce((n,arr)=>{const s=arr.find(x=>x.d===k);return n+(s?s.s.filter(Boolean).length:0);},0);}
-function doneSets(k){let n=0;const p=PD(k);if(!p)return 0;p.ex.forEach(e=>{const s=(S.lifts[e.id]||[]).find(x=>x.d===k);if(s)n+=s.s.filter(Boolean).length;});return n;}
-function totalSets(p){return p?p.ex.reduce((a,e)=>a+e.sets,0):0;}
+function doneSets(k){let n=0;const p=PD(k);if(!p)return 0;p.all.forEach(e=>{const s=(S.lifts[e.id]||[]).find(x=>x.d===k);if(s)n+=s.s.filter(Boolean).length;});return n;}
+function totalSets(p){return p?p.all.reduce((a,e)=>a+e.sets,0):0;}
 
 /* ===== Helpers ===== */
 const $=s=>document.querySelector(s);
@@ -919,7 +980,7 @@ function renderToday(){
   const hero = match
     ? '<div class="hero d-match"><div class="art">'+IC.body+'</div><div class="eyebrow">Sunday · '+weekLabel(w)+'</div><h2>Match Day</h2><p class="muted" style="margin:8px 0 14px;max-width:80%">Football and cricket are your training today. Rest from the gym so your legs stay fresh.</p><button class="cta" data-act="openTrain">Need a gym day instead?<span class="arr">'+IC.arrow+'</span></button></div>'
     : '<div class="hero d-'+tone+'"><div class="art">'+IC[iconFor(P.ex[0].id)]+'</div><div class="eyebrow">'+DAYFULL[d.getDay()]+' · '+weekLabel(w)+'</div><h2>'+esc(P.name)+'</h2><div class="muted" style="margin-top:2px">'+esc(P.focus)+'</div>'
-      +'<div class="meta"><span class="num">'+P.ex.length+' exercises</span><span class="num">'+ts+' sets</span><span>20:00 · 65 min</span></div>'
+      +'<div class="meta"><span class="num">'+P.ex.length+' exercises + core</span><span class="num">'+ts+' sets</span><span>20:00 · 70 min</span></div>'
       +'<div class="row" style="margin:14px 0"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>'
       +'<button class="cta" data-act="openTrain">'+(ds?"Continue Workout":"Start Workout")+'<span class="arr">'+IC.arrow+'</span></button></div>';
 
@@ -958,10 +1019,10 @@ function renderTrain(){
     if(weekOffset===0) body+='<div class="glass stack"><div class="ctitle">Want to lift today instead?</div><div class="chips">'+["push_a","pull_a","push_b","pull_b","vtaper"].map(p=>'<button class="pill" data-act="swap" data-p="'+p+'">'+esc(DAYS[p].name)+'</button>').join("")+'</div><div class="small muted">Skip Legs on match day. Your legs get plenty from the game.</div></div>';
   } else {
     const P=plan(w)[trainView]; const live=weekOffset===0&&trainView===todayProg;
-    const prev=w>1?plan(w-1)[trainView].ex.map(e=>e.id):[];
+    const prev=w>1?plan(w-1)[trainView].all.map(e=>e.id):[];
     const ts=totalSets(P), ds=live?doneSets(k):0, tone=P.tone;
     body+='<div class="hero d-'+tone+'"><div class="art">'+IC[iconFor(P.ex[0].id)]+'</div><div class="eyebrow">'+(live?"Today":weekOffset?"Next week":"Preview")+'</div><h2>'+esc(P.name)+'</h2><div class="muted" style="margin-top:2px;max-width:80%">'+esc(P.focus)+'</div>'
-      +'<div class="meta"><span>'+P.ex.length+' exercises</span><span>'+ts+' sets</span><span>65 min</span></div>'
+      +'<div class="meta"><span>'+P.ex.length+' exercises + core</span><span>'+ts+' sets</span><span>70 min</span></div>'
       +(live?'<div class="row" style="margin-top:14px"><div class="track" style="flex:1;--c:var('+TONE[tone][0]+')"><span style="width:'+(ts?Math.round(ds/ts*100):0)+'%"></span></div><span class="num small muted">'+ds+'/'+ts+'</span></div>':'')
       +'<p class="small muted" style="margin:12px 0 0">Start with the warm up below. Leave 1 to 2 reps in the tank on every set.</p></div>';
     if(isDeload(w)) body+='<div class="banner">Deload week. Use about 60% of normal weight and stop well short of failure.</div>';
@@ -970,8 +1031,10 @@ function renderTrain(){
       const dayNames=Object.keys(WEEK).filter(i=>WEEK[i]===trainView).map(i=>DAYFULL[i]).join(", ");
       body+='<div class="glass row between wrap"><div class="small muted" style="flex:1;min-width:160px">'+(weekOffset?'Preview of next '+dayNames+'. New moves have a green tag.':'This is '+dayNames+'\'s plan. Logging opens on that day.')+'</div>'+(weekOffset?'':'<button class="btn" data-act="swap" data-p="'+trainView+'">Do it today</button>')+'</div>';
     }
-    if(live&&!openEx.size){const first=P.ex.find(e=>{const s=sessionToday(e.id);return !s||s.s.filter(Boolean).length<e.sets;});if(first)openEx.add(first.id);}
+    if(live&&!openEx.size){const first=P.all.find(e=>{const s=sessionToday(e.id);return !s||s.s.filter(Boolean).length<e.sets;});if(first)openEx.add(first.id);}
     body+='<div class="row between"><div class="ctitle">Exercises</div><span class="small muted">Tap to open</span></div><div class="exlist">'+P.ex.map(e=>exCard(e,live,tone,w>1&&!prev.includes(e.id),isDeload(w))).join("")+'</div>';
+    if(P.core&&P.core.length) body+='<div class="glass corehead"><span class="ci">'+IC.core+'</span><span style="min-width:0;flex:1"><span class="ctitle" style="display:block">Core Finisher</span><span class="small muted">2 moves · about 6 min · '+esc(coreFocus(P.core))+'</span></span></div><div class="exlist">'+P.core.map(e=>exCard(e,live,"vt",w>1&&!prev.includes(e.id),isDeload(w))).join("")+'</div>'
+      +'<p class="small muted" style="margin:0 4px">Core work builds the muscle. Visible abs come from staying lean, so keep your waist steady in Stats.</p>';
     if(live && todayProg!==WEEK[now().getDay()]) body+='<div class="glass row between wrap"><div class="small muted">You swapped today\'s workout.</div><button class="btn ghost" data-act="unswap">Back to normal plan</button></div>';
   }
   $("#v-train").innerHTML=body;
@@ -1036,13 +1099,14 @@ function warmCard(P,live,deload){
   return html+'</div>';
 }
 
+function coreFocus(list){return [...new Set(list.map(e=>(groupsOf(e.id).find(g=>/abs|core|Obliques/i.test(g))||"Core").toLowerCase()))].join(" and ");}
 function exCard(e,live,tone,isNew,deload){
   const st=live?sessionToday(e.id):null; const done=st?st.s.filter(Boolean).length:0; const open=openEx.has(e.id);
   const complete=done>=e.sets;
   const tags=(e.main?'<span class="tag main">Main</span>':'')+(e.swapped?'<span class="tag swp">Swapped</span>':isNew?'<span class="tag new">New</span>':'');
   let html='<div class="ex'+(open?' open':'')+'" id="ex-'+e.id+'"><button class="exrow" data-act="toggleEx" data-id="'+e.id+'" aria-expanded="'+open+'">'
     +'<span class="thumb" style="--c:var('+TONE[tone][0]+');--s:var('+TONE[tone][1]+')">'+IC[iconFor(e.id)]+(complete?'<span class="ok">'+IC.check+'</span>':'')+'</span>'
-    +'<span style="min-width:0"><h3>'+esc(e.n)+tags+'</h3><div class="sub num">'+e.sets+' sets × '+esc(e.reps)+' reps · '+fmtRest(e.rest)+(live&&done?' · '+done+' done':'')+'</div></span>'
+    +'<span style="min-width:0"><h3>'+esc(e.n)+tags+'</h3><div class="sub num">'+e.sets+' sets × '+(/s$/.test(e.reps)?esc(e.reps.replace(/s$/," sec")):esc(e.reps)+' reps')+' · '+fmtRest(e.rest)+(live&&done?' · '+done+' done':'')+'</div></span>'
     +'<span class="chev">'+IC.chev+'</span></button>';
   if(open){
     const h=hintFor(e,deload); const lw=lastTopW(e.id); const rr=repRange(e.reps); let rows="";
@@ -1050,7 +1114,7 @@ function exCard(e,live,tone,isNew,deload){
       const s=st&&st.s[i];
       rows+='<div class="set'+(s?' done':'')+'"><span class="sn">Set '+(i+1)+'</span>'
         +'<label><input id="w-'+e.id+'-'+i+'" inputmode="decimal" aria-label="Weight set '+(i+1)+'" placeholder="'+(lw||"0")+'" value="'+(s?fmtW(s[0]):"")+'"'+(live?"":" disabled")+'><span>kg</span></label>'
-        +'<label><input id="r-'+e.id+'-'+i+'" inputmode="numeric" aria-label="Reps set '+(i+1)+'" placeholder="'+(rr?rr.hi:parseInt(e.reps))+'" value="'+(s?s[1]:"")+'"'+(live?"":" disabled")+'><span>reps</span></label>'
+        +'<label><input id="r-'+e.id+'-'+i+'" inputmode="numeric" aria-label="Reps set '+(i+1)+'" placeholder="'+(rr?rr.hi:parseInt(e.reps))+'" value="'+(s?s[1]:"")+'"'+(live?"":" disabled")+'><span>'+(/s$/.test(e.reps)?"sec":"reps")+'</span></label>'
         +'<button class="ck" aria-label="'+(s?"Undo set ":"Done set ")+(i+1)+'" data-act="set" data-id="'+e.id+'" data-i="'+i+'"'+(live?"":" disabled")+'>'+IC.check+'</button></div>';
     }
     html+='<div class="exbody"><div class="exbtns"><button class="howbtn" data-act="how" data-id="'+e.id+'"><span class="pi">'+IC.play+'</span><span>How to do it<small>Steps and video</small></span></button>'
@@ -1356,18 +1420,18 @@ function viewCtx(){
   const k=todayKey(); const w=weekOf(k)+weekOffset; const dk=trainView||progFor(k);
   if(dk==="match") return null;
   const P=plan(w)[dk]; const live=weekOffset===0&&dk===progFor(k);
-  const prev=w>1?plan(w-1)[dk].ex.map(x=>x.id):[];
+  const prev=w>1?plan(w-1)[dk].all.map(x=>x.id):[];
   return {P,live,w,prev};
 }
 function rebuildEx(id){
-  const c=viewCtx(); if(!c) return; const e=c.P.ex.find(x=>x.id===id); if(!e) return;
+  const c=viewCtx(); if(!c) return; const e=c.P.all.find(x=>x.id===id); if(!e) return;
   const card=document.getElementById("ex-"+id); if(!card) return;
   const typed={}; card.querySelectorAll("input").forEach(inp=>typed[inp.id]=inp.value);
-  const tmp=document.createElement("div"); tmp.innerHTML=exCard(e,c.live,c.P.tone,c.w>1&&!c.prev.includes(id),isDeload(c.w)); card.replaceWith(tmp.firstChild);
+  const tmp=document.createElement("div"); tmp.innerHTML=exCard(e,c.live,e.core?"vt":c.P.tone,c.w>1&&!c.prev.includes(id),isDeload(c.w)); card.replaceWith(tmp.firstChild);
   document.querySelectorAll("#ex-"+id+" input").forEach(inp=>{if(!inp.value&&typed[inp.id])inp.value=typed[inp.id];});
 }
 function logSet(id,i){
-  const k=todayKey(); const P=PD(k); if(!P) return; const e=P.ex.find(x=>x.id===id); if(!e) return;
+  const k=todayKey(); const P=PD(k); if(!P) return; const e=P.all.find(x=>x.id===id); if(!e) return;
   if(!S.lifts[id]) S.lifts[id]=[];
   let s=S.lifts[id].find(x=>x.d===k); if(!s){s={d:k,s:[]};S.lifts[id].push(s);}
   let justDone=false;
@@ -1385,7 +1449,7 @@ function logSet(id,i){
   save("lifts");
   const finished=justDone&&s.s.filter(Boolean).length>=e.sets;
   if(finished){
-    openEx.delete(id); const idx=P.ex.findIndex(x=>x.id===id); const nx=P.ex.slice(idx+1).find(x=>{const ss=sessionToday(x.id);return !ss||ss.s.filter(Boolean).length<x.sets;});
+    openEx.delete(id); const idx=P.all.findIndex(x=>x.id===id); const nx=P.all.slice(idx+1).find(x=>{const ss=sessionToday(x.id);return !ss||ss.s.filter(Boolean).length<x.sets;});
     rebuildEx(id); if(nx){openEx.add(nx.id);rebuildEx(nx.id);}
   } else {
     rebuildEx(id);
@@ -1428,10 +1492,10 @@ document.addEventListener("input",e=>{if(e.target.id==="fSearch"){fQ=e.target.va
 /* ===== Swap sheet ===== */
 let swapCtx=null;
 function openSwap(id,from){
-  const c=viewCtx(); if(!c) return; const e=c.P.ex.find(x=>x.id===id); if(!e) return;
+  const c=viewCtx(); if(!c) return; const e=c.P.all.find(x=>x.id===id); if(!e) return;
   const dk=trainView||progFor(todayKey());
   const grps=[...new Set(groupsOf(e.orig).concat(groupsOf(e.id)))];
-  const used=c.P.ex.filter(x=>x.id!==e.id).map(x=>x.id);
+  const used=c.P.all.filter(x=>x.id!==e.id).map(x=>x.id);
   let opts=[...new Set(grps.flatMap(g=>GROUPS[g]))].filter(x=>x!==e.id&&!used.includes(x)&&LIB[x]);
   if(e.swapped){opts=[e.orig].concat(opts.filter(x=>x!==e.orig));}
   swapCtx={w:c.w,dk,si:e.si,main:e.main,orig:e.orig,cur:e.id};
